@@ -1,0 +1,60 @@
+{
+  "stocks": [
+    {
+      "name": "삼성전자",
+      "code": "005930",
+      "type": "domestic"
+    },
+    {
+      "name": "SK하이닉스",
+      "code": "000660",
+      "type": "domestic"
+    },
+    {
+      "name": "Apple",
+      "code": "AAPL",
+      "type": "foreign"
+    },
+    {
+      "name": "Tesla",
+      "code": "TSLA",
+      "type": "foreign"
+    },
+    {
+      "name": "NVIDIA",
+      "code": "NVDA",
+      "type": "foreign"
+    },
+    {
+      "name": "Microsoft",
+      "code": "MSFT",
+      "type": "foreign"
+    }
+  ],
+  "learning": [
+    {
+      "id": "1",
+      "title": "복리의 마법 이해하기",
+      "category": "기초",
+      "contentType": "article"
+    },
+    {
+      "id": "2",
+      "title": "재무제표 읽는 법",
+      "category": "중급",
+      "contentType": "article"
+    },
+    {
+      "id": "3",
+      "title": "ETF 투자 가이드",
+      "category": "기초",
+      "contentType": "article"
+    },
+    {
+      "id": "4",
+      "title": "캔들스틱 차트 분석",
+      "category": "기술적 분석",
+      "contentType": "article"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: FinVibe Spring Boot BFF
+server:
+  port: ${SERVER_PORT:8080}
+
+springdoc:
+  swagger-ui:
+    path: /docs
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  version: 1.0.0
+
+finvibe:
+  data-dir: ${FINVIBE_DATA_DIR:./runtime}
+  jwt:
+    secret-key: ${JWT_SECRET_KEY:please-change-this-secret-key}
+    access-token-minutes: ${ACCESS_TOKEN_MINUTES:30}
+    refresh-token-days: ${REFRESH_TOKEN_DAYS:14}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173}
+  kis:
+    enabled: ${KIS_ENABLED:true}
+    base-url: ${KIS_BASE_URL:https://openapi.koreainvestment.com:9443}
+    app-key: ${KIS_APP_KEY:PSRWNqROeOKnU9IftdxTH9S0mfoZaZKNEQTu}
+    app-secret: ${KIS_APP_SECRET:iKUtliChzBs+2rgtiYttCK5FqasBslTygUzFoAlbue5+DA6nNMgugtADWMwD8gIctAExpsSNy1U6qousrABQXOfyy+wvC/JwfXQfvs6a3TFMxpBqtU4oQfmupna3X4pK0vZVXHsuWj4iSYzF+hwYnVwrijfBgclv43ex75FKGrAA39cgzfA=}
+    timeout-ms: ${KIS_TIMEOUT_MS:5000}
