@@ -1,0 +1,66 @@
+[
+  {
+    "id": "1",
+    "name": "첫 수익",
+    "icon": "Trophy",
+    "earned": true,
+    "description": "투자 시뮬레이터에서 첫 수익을 달성하면 획득합니다.",
+    "color": "#fbbf24"
+  },
+  {
+    "id": "2",
+    "name": "지식 탐구자",
+    "icon": "TrendingUp",
+    "earned": true,
+    "description": "AI 학습 콘텐츠를 5개 이상 완료하면 획득합니다.",
+    "color": "#10b981"
+  },
+  {
+    "id": "3",
+    "name": "성실한 투자자",
+    "icon": "Rocket",
+    "earned": false,
+    "description": "서비스에 7일 연속 접속하면 획득합니다.",
+    "color": "#ef4444"
+  },
+  {
+    "id": "4",
+    "name": "분석 투자의 달인",
+    "icon": "Shield",
+    "earned": false,
+    "description": "서로 다른 5종목 이상을 보유하면 획득합니다.",
+    "color": "#6b7280"
+  },
+  {
+    "id": "5",
+    "name": "베스트 트레이더",
+    "icon": "Star",
+    "earned": false,
+    "description": "높은 수익률과 활발한 활동을 동시에 달성하면 획득합니다.",
+    "color": "#fbbf24"
+  },
+  {
+    "id": "6",
+    "name": "위기 돌파",
+    "icon": "Zap",
+    "earned": false,
+    "description": "손실 구간에서 수익 전환에 성공하면 획득합니다.",
+    "color": "#eab308"
+  },
+  {
+    "id": "7",
+    "name": "인사이트 헌터",
+    "icon": "Lightbulb",
+    "earned": false,
+    "description": "관심 종목을 10개 이상 등록하면 획득합니다.",
+    "color": "#f97316"
+  },
+  {
+    "id": "8",
+    "name": "상위 1% 트레이더",
+    "icon": "Crown",
+    "earned": false,
+    "description": "전체 사용자 대비 수익률 상위 1%에 오르면 획득합니다.",
+    "color": "#fbbf24"
+  }
+]
