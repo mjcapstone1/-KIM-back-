@@ -1,0 +1,66 @@
+[
+  {
+    "id": "1",
+    "name": "첫 수익",
+    "icon": "Trophy",
+    "earned": true,
+    "description": "투자 시뮬레이터에서 첫 수익 **원(원)** 이상의 실현 익었을 때 시대",
+    "color": "#fbbf24"
+  },
+  {
+    "id": "2",
+    "name": "지식 탐구자",
+    "icon": "TrendingUp",
+    "earned": true,
+    "description": "AI 투자 학습 내외 콘텐츠(강의, 아티클 등)을 획득 완료 시대",
+    "color": "#10b981"
+  },
+  {
+    "id": "3",
+    "name": "성실한 투자자",
+    "icon": "Rocket",
+    "earned": false,
+    "description": "서비스에 7일 연속으로 접속하면 획득 가능 시대",
+    "color": "#ef4444"
+  },
+  {
+    "id": "4",
+    "name": "분석 투자의 달인",
+    "icon": "Shield",
+    "earned": false,
+    "description": "나의 포트폴리오의(잔액 합산 단위) 시뮬 다른 종목으로 보유하고 있을 때 시대",
+    "color": "#6b7280"
+  },
+  {
+    "id": "5",
+    "name": "베스트 트레일",
+    "icon": "Star",
+    "earned": false,
+    "description": "누스모든도 거래 개시판의 게시한 개인가 인기 토톬 받을 시뮬 인기 토톬 시뮬",
+    "color": "#fbbf24"
+  },
+  {
+    "id": "6",
+    "name": "위즈 폭락 만회",
+    "icon": "Zap",
+    "earned": false,
+    "description": "주가 경제 캘린더 이벤트의 높이와 오만 참여 문서로 보답한 시대",
+    "color": "#eab308"
+  },
+  {
+    "id": "7",
+    "name": "멘탈의 마인드",
+    "icon": "Lightbulb",
+    "earned": false,
+    "description": "종목한 관련게 늘어 10개가 벌펜을 성공 시대",
+    "color": "#f97316"
+  },
+  {
+    "id": "8",
+    "name": "실적 1% 트라이더",
+    "icon": "Crown",
+    "earned": false,
+    "description": "전체 사용자 대비 수익률 상위 1%(또1즉 건 되었을을 때",
+    "color": "#fbbf24"
+  }
+]

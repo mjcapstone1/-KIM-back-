@@ -1,0 +1,59 @@
+[
+  {
+    "id": "1",
+    "title": "투자 기초",
+    "description": "투자의 기본 개념과 용어를 배웁니다",
+    "level": "beginner",
+    "progress": 100,
+    "completed": true,
+    "lessons": [
+      "주식이란 무엇인가?",
+      "시장의 종류",
+      "기본 투자 용어",
+      "계좌 개설하기"
+    ]
+  },
+  {
+    "id": "2",
+    "title": "기술적 분석",
+    "description": "차트와 지표를 활용한 분석 방법",
+    "level": "intermediate",
+    "progress": 65,
+    "completed": false,
+    "lessons": [
+      "캔들스틱 차트",
+      "RSI 지표",
+      "MACD",
+      "볼린저 밴드",
+      "거래량 분석"
+    ]
+  },
+  {
+    "id": "3",
+    "title": "재무제표 분석",
+    "description": "기업의 재무 상태를 평가하는 방법",
+    "level": "intermediate",
+    "progress": 0,
+    "completed": false,
+    "lessons": [
+      "재무제표 읽기",
+      "PER/PBR",
+      "현금흐름",
+      "기업가치 평가"
+    ]
+  },
+  {
+    "id": "4",
+    "title": "포트폴리오 관리",
+    "description": "효과적인 자산 배분과 리스크 관리",
+    "level": "advanced",
+    "progress": 0,
+    "completed": false,
+    "lessons": [
+      "자산 배분 전략",
+      "리밸런싱",
+      "헤징 기법",
+      "리스크 관리"
+    ]
+  }
+]
