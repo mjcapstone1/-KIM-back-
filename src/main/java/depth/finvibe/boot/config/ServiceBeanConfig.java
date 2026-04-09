@@ -5,9 +5,11 @@ import depth.finvibe.shared.market.MarketService;
 import depth.finvibe.shared.security.AuthService;
 import depth.finvibe.shared.security.JwtService;
 import depth.finvibe.shared.state.AppState;
+import depth.finvibe.user.modules.user.application.service.UserService;
 import depth.finvibe.user.modules.user.application.service.UserStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 public class ServiceBeanConfig {
@@ -22,8 +24,8 @@ public class ServiceBeanConfig {
     }
 
     @Bean
-    public AuthService authService(JwtService jwtService, UserStore userStore) {
-        return new AuthService(jwtService, userStore);
+    public AuthService authService(JwtService jwtService, UserService userService) {
+        return new AuthService(jwtService, userService);
     }
 
     @Bean
@@ -34,5 +36,10 @@ public class ServiceBeanConfig {
     @Bean
     public AppState appState(AppConfig config, MarketService marketService) {
         return new AppState(config.dataDir(), marketService);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper().findAndRegisterModules();
     }
 }

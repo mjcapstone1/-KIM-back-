@@ -1,8 +1,11 @@
 package depth.finvibe.manifest.modules.home.api.external;
 
 import depth.finvibe.shared.config.AppConfig;
+import depth.finvibe.shared.redis.RedisJsonCacheService;
+import depth.finvibe.shared.redis.RedisKeys;
 import depth.finvibe.shared.state.AppState;
 import depth.finvibe.shared.util.Maps;
+import java.time.Duration;
 import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,10 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
     private final AppConfig config;
     private final AppState state;
+    private final RedisJsonCacheService cache;
 
-    public HomeController(AppConfig config, AppState state) {
+    public HomeController(AppConfig config, AppState state, RedisJsonCacheService cache) {
         this.config = config;
         this.state = state;
+        this.cache = cache;
     }
 
     @GetMapping("/")
@@ -42,12 +47,20 @@ public class HomeController {
 
     @GetMapping("/api/v1/home/screen")
     public Map<String, Object> homeScreen() {
-        return state.getHomeScreen();
+        return cache.getOrLoadMap(
+                RedisKeys.homeScreen(),
+                Duration.ofSeconds(60),
+                state::getHomeScreen
+        );
     }
 
     @GetMapping("/api/v1/home/indices")
     public Map<String, Object> homeIndices() {
-        return Maps.of("items", state.getIndices());
+        return cache.getOrLoadMap(
+                RedisKeys.homeIndices(),
+                Duration.ofSeconds(30),
+                () -> Maps.of("items", state.getIndices())
+        );
     }
 
     @GetMapping("/api/v1/home/indices/{indexName}/chart")
@@ -73,10 +86,15 @@ public class HomeController {
             default -> metric.toLowerCase();
         };
         int resolvedLimit = clamp(limit, 1, 100);
-        return Maps.of(
-                "metric", normalizedMetric,
-                "market", market,
-                "items", state.getHomeRankings(normalizedMetric, market, resolvedLimit)
+
+        return cache.getOrLoadMap(
+                RedisKeys.homeRankings(normalizedMetric, market, resolvedLimit),
+                Duration.ofSeconds(60),
+                () -> Maps.of(
+                        "metric", normalizedMetric,
+                        "market", market,
+                        "items", state.getHomeRankings(normalizedMetric, market, resolvedLimit)
+                )
         );
     }
 

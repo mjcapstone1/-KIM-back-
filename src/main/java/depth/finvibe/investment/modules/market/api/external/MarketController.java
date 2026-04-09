@@ -6,6 +6,9 @@ import depth.finvibe.shared.security.AuthService;
 import depth.finvibe.shared.security.CurrentUser;
 import depth.finvibe.shared.util.Maps;
 import depth.finvibe.user.modules.user.application.service.UserStore;
+import depth.finvibe.shared.redis.RedisJsonCacheService;
+import depth.finvibe.shared.redis.RedisKeys;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +25,13 @@ public class MarketController {
     private final AppState state;
     private final AuthService authService;
     private final UserStore userStore;
+    private final RedisJsonCacheService cache;
 
-    public MarketController(AppState state, AuthService authService, UserStore userStore) {
+    public MarketController(AppState state, AuthService authService, UserStore userStore, RedisJsonCacheService cache) {
         this.state = state;
         this.authService = authService;
         this.userStore = userStore;
+        this.cache = cache;
     }
 
     @GetMapping("/api/v1/simulator/screen")
@@ -58,19 +63,27 @@ public class MarketController {
     public Object stocks(@RequestParam(defaultValue = "all") String market,
                          @RequestParam(defaultValue = "") String query,
                          @RequestParam(defaultValue = "50") int limit) {
-        Integer resolvedLimit = Math.max(1, Math.min(200, limit));
-        return Maps.of(
-                "market", market,
-                "query", query,
-                "items", state.listStocks(market, query, resolvedLimit)
+        int resolvedLimit = Math.max(1, Math.min(200, limit));
+
+        return cache.getOrLoadMap(
+                RedisKeys.stockList(market, query, resolvedLimit),
+                Duration.ofSeconds(5),
+                () -> Maps.of(
+                        "market", market,
+                        "query", query,
+                        "items", state.listStocks(market, query, resolvedLimit)
+                )
         );
     }
 
     @GetMapping("/api/v1/simulator/stocks/{stockId}")
     public Object stockDetail(@PathVariable String stockId) {
-        return state.getStockDetail(stockId);
+        return cache.getOrLoadMap(
+                RedisKeys.stockDetail(stockId),
+                Duration.ofSeconds(5),
+                () -> state.getStockDetail(stockId)
+        );
     }
-
     @GetMapping("/api/v1/simulator/stocks/{stockId}/screen")
     public Object stockScreen(@PathVariable String stockId, @RequestParam(defaultValue = "day") String timeframe) {
         return state.getStockScreen(stockId, timeframe);
@@ -103,7 +116,20 @@ public class MarketController {
 
     @GetMapping("/api/v1/simulator/favorites")
     public Object favorites(@RequestHeader(name = "Authorization", required = false) String authorization) {
-        return Maps.of("items", favoriteItemsForUser(optionalUser(authorization)));
+        CurrentUser currentUser = optionalUser(authorization);
+
+        if (currentUser == null) {
+            return Maps.of("items", favoriteItemsForUser(null));
+        }
+
+        return Maps.of(
+                "items",
+                cache.getOrLoadMapList(
+                        RedisKeys.interestStocks(currentUser.userId()),
+                        Duration.ofMinutes(5),
+                        () -> favoriteItemsForUser(currentUser)
+                )
+        );
     }
 
     @PostMapping("/api/v1/simulator/favorites/{stockId}")
@@ -111,10 +137,18 @@ public class MarketController {
                               @RequestHeader(name = "Authorization", required = false) String authorization) {
         CurrentUser currentUser = optionalUser(authorization);
         String canonical = addFavoriteForUser(stockId, currentUser);
+
+        List<Map<String, Object>> items = favoriteItemsForUser(currentUser);
+
+        if (currentUser != null) {
+            cache.put(RedisKeys.interestStocks(currentUser.userId()), items, Duration.ofMinutes(5));
+            cache.delete(RedisKeys.homeSummary(currentUser.userId()));
+        }
+
         return Maps.of(
                 "message", "관심 종목에 추가되었습니다.",
                 "stockId", canonical,
-                "items", favoriteItemsForUser(currentUser)
+                "items", items
         );
     }
 
@@ -123,10 +157,18 @@ public class MarketController {
                                  @RequestHeader(name = "Authorization", required = false) String authorization) {
         CurrentUser currentUser = optionalUser(authorization);
         String canonical = removeFavoriteForUser(stockId, currentUser);
+
+        List<Map<String, Object>> items = favoriteItemsForUser(currentUser);
+
+        if (currentUser != null) {
+            cache.put(RedisKeys.interestStocks(currentUser.userId()), items, Duration.ofMinutes(5));
+            cache.delete(RedisKeys.homeSummary(currentUser.userId()));
+        }
+
         return Maps.of(
                 "message", "관심 종목에서 제거되었습니다.",
                 "stockId", canonical,
-                "items", favoriteItemsForUser(currentUser)
+                "items", items
         );
     }
 
@@ -290,5 +332,4 @@ public class MarketController {
         }
         return parsed;
     }
-
 }

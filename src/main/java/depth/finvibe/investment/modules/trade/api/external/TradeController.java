@@ -1,7 +1,10 @@
 package depth.finvibe.investment.modules.trade.api.external;
 
+import depth.finvibe.investment.modules.trade.application.service.TradeService;
+import depth.finvibe.investment.modules.wallet.application.service.WalletService;
 import depth.finvibe.shared.http.ApiException;
-import depth.finvibe.shared.state.AppState;
+import depth.finvibe.shared.security.AuthService;
+import depth.finvibe.shared.security.CurrentUser;
 import depth.finvibe.shared.util.Maps;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,86 +14,114 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TradeController {
-    private final AppState state;
+    private final TradeService tradeService;
+    private final WalletService walletService;
+    private final AuthService authService;
 
-    public TradeController(AppState state) {
-        this.state = state;
+    public TradeController(TradeService tradeService, WalletService walletService, AuthService authService) {
+        this.tradeService = tradeService;
+        this.walletService = walletService;
+        this.authService = authService;
     }
 
     @GetMapping("/api/v1/simulator/orders")
-    public Object orders(@RequestParam(required = false) String status,
+    public Object orders(@RequestHeader(name = "Authorization", required = false) String authorization,
+                         @RequestParam(required = false) String status,
                          @RequestParam(required = false) String kind) {
-        return Maps.of("items", normalizeOrders(state.listOrders(status, kind)));
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return Maps.of("items", tradeService.listOrders(currentUser.userId(), status, kind));
     }
 
     @PostMapping("/api/v1/simulator/orders")
-    public Object createOrder(@RequestBody(required = false) Map<String, Object> body) {
-        Map<String, Object> order = normalizeOrder(state.createOrder(parseOrderBody(body == null ? new LinkedHashMap<>() : body), false));
+    public Object createOrder(@RequestHeader(name = "Authorization", required = false) String authorization,
+                              @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        Map<String, Object> order = tradeService.createOrder(currentUser.userId(), parseOrderBody(body == null ? new LinkedHashMap<>() : body), false);
         return Maps.of(
                 "message", "주문이 접수되었습니다.",
                 "order", order,
-                "wallet", state.getWalletSummary()
+                "wallet", walletService.getWalletSummary(currentUser.userId())
         );
     }
 
     @PostMapping("/api/v1/simulator/auto-orders")
-    public Object createAutoOrder(@RequestBody(required = false) Map<String, Object> body) {
-        Map<String, Object> order = normalizeOrder(state.createOrder(parseOrderBody(body == null ? new LinkedHashMap<>() : body), true));
+    public Object createAutoOrder(@RequestHeader(name = "Authorization", required = false) String authorization,
+                                  @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        Map<String, Object> order = tradeService.createOrder(currentUser.userId(), parseOrderBody(body == null ? new LinkedHashMap<>() : body), true);
         return Maps.of(
                 "message", "자동 주문이 예약되었습니다.",
                 "order", order,
-                "wallet", state.getWalletSummary()
+                "wallet", walletService.getWalletSummary(currentUser.userId())
         );
     }
 
     @GetMapping("/api/v1/simulator/orders/{orderId}")
-    public Object order(@PathVariable String orderId) {
-        return normalizeOrder(state.getOrder(orderId));
+    public Object order(@PathVariable String orderId,
+                        @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return tradeService.getOrder(currentUser.userId(), orderId);
     }
 
     @DeleteMapping("/api/v1/simulator/orders/{orderId}")
-    public Object cancelOrder(@PathVariable String orderId) {
-        Map<String, Object> order = normalizeOrder(state.cancelOrder(orderId));
+    public Object cancelOrder(@PathVariable String orderId,
+                              @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        Map<String, Object> order = tradeService.cancelOrder(currentUser.userId(), orderId);
         return Maps.of(
                 "message", "주문이 취소되었습니다.",
                 "order", order,
-                "wallet", state.getWalletSummary()
+                "wallet", walletService.getWalletSummary(currentUser.userId())
         );
     }
 
     @GetMapping("/trades/history")
-    public Object tradeHistory() {
-        return normalizeOrders(state.listOrders(null, null));
+    public Object tradeHistory(@RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return tradeService.listOrders(currentUser.userId(), null, null);
     }
 
     @GetMapping("/trades/reserved/stock-ids")
-    public Object reservedStockIds() {
-        return state.reservedStockIds();
+    public Object reservedStockIds(@RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return tradeService.reservedStockIds(currentUser.userId());
     }
 
     @GetMapping("/trades/users/{userId}/history")
-    public Object userTradeHistory(@PathVariable String userId) {
-        return Maps.of("userId", userId, "items", normalizeOrders(state.listOrders(null, null)));
+    public Object userTradeHistory(@PathVariable String userId,
+                                   @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        if (!userId.equals(currentUser.userId())) {
+            throw ApiException.forbidden("FORBIDDEN", "본인 거래내역만 조회할 수 있습니다.");
+        }
+        return Maps.of("userId", userId, "items", tradeService.listOrders(userId, null, null));
     }
 
     @PostMapping("/trades")
-    public Object tradesAlias(@RequestBody(required = false) Map<String, Object> body) {
-        return normalizeOrder(state.createOrder(parseOrderBody(body == null ? new LinkedHashMap<>() : body), false));
+    public Object tradesAlias(@RequestHeader(name = "Authorization", required = false) String authorization,
+                              @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return tradeService.createOrder(currentUser.userId(), parseOrderBody(body == null ? new LinkedHashMap<>() : body), false);
     }
 
     @GetMapping("/trades/{tradeId}")
-    public Object tradeAlias(@PathVariable String tradeId) {
-        return normalizeOrder(state.getOrder(tradeId));
+    public Object tradeAlias(@PathVariable String tradeId,
+                             @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return tradeService.getOrder(currentUser.userId(), tradeId);
     }
 
     @DeleteMapping("/trades/{tradeId}")
-    public Object cancelTradeAlias(@PathVariable String tradeId) {
-        return normalizeOrder(state.cancelOrder(tradeId));
+    public Object cancelTradeAlias(@PathVariable String tradeId,
+                                   @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return tradeService.cancelOrder(currentUser.userId(), tradeId);
     }
 
     private Map<String, Object> parseOrderBody(Map<String, Object> body) {
@@ -119,17 +150,6 @@ public class TradeController {
             payload.put("triggerPrice", Maps.doubleVal(body, "triggerPrice"));
         }
         return payload;
-    }
-
-    private List<Map<String, Object>> normalizeOrders(List<Map<String, Object>> items) {
-        items.replaceAll(this::normalizeOrder);
-        return items;
-    }
-
-    private Map<String, Object> normalizeOrder(Map<String, Object> item) {
-        Map<String, Object> row = new LinkedHashMap<>(item);
-        row.put("kind", item.get("autoCondition") != null || "scheduled".equals(Maps.str(item, "priceType")) ? "auto" : "manual");
-        return row;
     }
 
     private String required(Map<String, Object> body, String field) {

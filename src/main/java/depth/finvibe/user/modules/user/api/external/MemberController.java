@@ -1,13 +1,15 @@
 package depth.finvibe.user.modules.user.api.external;
 
 import depth.finvibe.shared.http.ApiException;
+import depth.finvibe.shared.market.StockQueryService;
+import depth.finvibe.shared.persistence.user.UserEntity;
 import depth.finvibe.shared.security.AuthService;
 import depth.finvibe.shared.security.CurrentUser;
 import depth.finvibe.shared.security.PasswordHasher;
 import depth.finvibe.shared.state.AppState;
 import depth.finvibe.shared.util.Maps;
 import depth.finvibe.shared.util.Validators;
-import depth.finvibe.user.modules.user.application.service.UserStore;
+import depth.finvibe.user.modules.user.application.service.UserService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -25,36 +27,38 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MemberController {
-    private final UserStore userStore;
+    private final UserService userService;
     private final AuthService authService;
     private final AppState state;
+    private final StockQueryService stockQueryService;
 
-    public MemberController(UserStore userStore, AuthService authService, AppState state) {
-        this.userStore = userStore;
+    public MemberController(UserService userService, AuthService authService, AppState state, StockQueryService stockQueryService) {
+        this.userService = userService;
         this.authService = authService;
         this.state = state;
+        this.stockQueryService = stockQueryService;
     }
 
     @GetMapping("/members/check-login-id")
     public Object checkLoginId(@RequestParam(required = false, defaultValue = "") String loginId) {
-        return Maps.of("isDuplicate", userStore.existsLoginId(loginId));
+        return Maps.of("isDuplicate", userService.existsLoginId(loginId));
     }
 
     @GetMapping("/members/check-email")
     public Object checkEmail(@RequestParam(required = false, defaultValue = "") String email) {
-        return Maps.of("isDuplicate", userStore.existsEmail(email));
+        return Maps.of("isDuplicate", userService.existsEmail(email));
     }
 
     @GetMapping("/members/check-nickname")
     public Object checkNickname(@RequestParam(required = false, defaultValue = "") String nickname) {
-        return Maps.of("isDuplicate", userStore.existsNickname(nickname));
+        return Maps.of("isDuplicate", userService.existsNickname(nickname));
     }
 
     @GetMapping("/members/me")
     public Object me(@RequestHeader(name = "Authorization", required = false) String authorization) {
         CurrentUser currentUser = authService.requireUser(authorization);
-        Map<String, Object> user = currentUserRecord(currentUser);
-        return userStore.toPublicUser(user);
+        UserEntity user = currentUserRecord(currentUser);
+        return userService.toPublicUser(user);
     }
 
     @PatchMapping("/members")
@@ -77,13 +81,13 @@ public class MemberController {
 
     @GetMapping("/members/{userId}")
     public Object memberSummary(@PathVariable String userId) {
-        Map<String, Object> user = userStore.getUserById(userId);
+        UserEntity user = userService.getUserById(userId);
         if (user == null) {
             throw ApiException.notFound("USER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
         }
         Integer ranking = null;
         for (Map<String, Object> row : state.xpUserRanking()) {
-            if (Maps.str(user, "nickname").equals(Maps.str(row, "nickname"))) {
+            if (user.getNickname().equals(Maps.str(row, "nickname"))) {
                 ranking = Maps.intVal(row, "rank");
                 break;
             }
@@ -95,14 +99,14 @@ public class MemberController {
             }
         }
         return Maps.of(
-                "userId", Maps.str(user, "userId"),
-                "nickname", Maps.str(user, "nickname"),
+                "userId", user.getUserId(),
+                "nickname", user.getNickname(),
                 "gamificationSummary", Maps.of(
-                        "userId", Maps.str(user, "userId"),
+                        "userId", user.getUserId(),
                         "badges", earnedBadges,
                         "ranking", ranking,
                         "totalXp", state.xpMe().get("totalXp"),
-                        "currentReturnRate", state.currentReturnRateForNickname(Maps.str(user, "nickname"))
+                        "currentReturnRate", state.currentReturnRateForNickname(user.getNickname())
                 )
         );
     }
@@ -111,8 +115,8 @@ public class MemberController {
     public Object favoriteStocks(@RequestHeader(name = "Authorization", required = false) String authorization) {
         CurrentUser currentUser = authService.requireUser(authorization);
         List<Map<String, Object>> rows = new ArrayList<>();
-        for (String stockId : userStore.listFavoriteStockIds(currentUser.userId())) {
-            Map<String, Object> stock = state.resolveStock(stockId);
+        for (String stockId : userService.listFavoriteStockIds(currentUser.userId())) {
+            Map<String, Object> stock = stockQueryService.resolveStock(stockId);
             rows.add(Maps.of("stockId", Maps.str(stock, "id"), "name", Maps.str(stock, "name"), "userId", currentUser.userId()));
         }
         return rows;
@@ -122,9 +126,9 @@ public class MemberController {
     public Object addFavorite(@PathVariable String stockId,
                               @RequestHeader(name = "Authorization", required = false) String authorization) {
         CurrentUser currentUser = authService.requireUser(authorization);
-        Map<String, Object> stock = state.resolveStock(stockId);
+        Map<String, Object> stock = stockQueryService.resolveStock(stockId);
         String canonical = Maps.str(stock, "id");
-        userStore.addFavoriteStock(currentUser.userId(), canonical);
+        userService.addFavoriteStock(currentUser.userId(), canonical);
         return Maps.of("stockId", canonical, "name", Maps.str(stock, "name"), "userId", currentUser.userId());
     }
 
@@ -132,14 +136,14 @@ public class MemberController {
     public Object removeFavorite(@PathVariable String stockId,
                                  @RequestHeader(name = "Authorization", required = false) String authorization) {
         CurrentUser currentUser = authService.requireUser(authorization);
-        Map<String, Object> stock = state.resolveStock(stockId);
+        Map<String, Object> stock = stockQueryService.resolveStock(stockId);
         String canonical = Maps.str(stock, "id");
-        userStore.removeFavoriteStock(currentUser.userId(), canonical);
+        userService.removeFavoriteStock(currentUser.userId(), canonical);
         return Maps.of("stockId", canonical, "name", Maps.str(stock, "name"), "userId", currentUser.userId());
     }
 
-    private Map<String, Object> currentUserRecord(CurrentUser currentUser) {
-        Map<String, Object> user = userStore.getUserById(currentUser.userId());
+    private UserEntity currentUserRecord(CurrentUser currentUser) {
+        UserEntity user = userService.getUserById(currentUser.userId());
         if (user == null) {
             throw ApiException.unauthorized("USER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
         }
@@ -147,28 +151,19 @@ public class MemberController {
     }
 
     private Object updateMeInternal(CurrentUser currentUser, Map<String, Object> body) {
-        Map<String, Object> user = currentUserRecord(currentUser);
+        UserEntity user = currentUserRecord(currentUser);
         Map<String, Object> updates = new LinkedHashMap<>();
 
         if (body.containsKey("loginId")) {
             String loginId = Validators.validateLoginId(Validators.requireString(body.get("loginId"), "loginId"));
-            if (!loginId.equals(Maps.str(user, "loginId")) && userStore.existsLoginId(loginId)) {
-                throw ApiException.conflict("LOGIN_ID_ALREADY_EXISTS", "이미 사용 중인 로그인 ID입니다.");
-            }
             updates.put("loginId", loginId);
         }
         if (body.containsKey("email")) {
             String email = Validators.validateEmail(Validators.requireString(body.get("email"), "email"));
-            if (!email.equalsIgnoreCase(Maps.str(user, "email")) && userStore.existsEmail(email)) {
-                throw ApiException.conflict("EMAIL_ALREADY_EXISTS", "이미 사용 중인 이메일입니다.");
-            }
             updates.put("email", email);
         }
         if (body.containsKey("nickname")) {
             String nickname = Validators.validateNickname(Validators.requireString(body.get("nickname"), "nickname"));
-            if (!nickname.equals(Maps.str(user, "nickname")) && userStore.existsNickname(nickname)) {
-                throw ApiException.conflict("NICKNAME_ALREADY_EXISTS", "이미 사용 중인 닉네임입니다.");
-            }
             updates.put("nickname", nickname);
         }
         if (body.containsKey("name")) {
@@ -190,10 +185,7 @@ public class MemberController {
             updates.put("passwordHash", PasswordHasher.hash(newPassword));
         }
 
-        Map<String, Object> updated = userStore.updateUser(currentUser.userId(), updates);
-        if (updated == null) {
-            throw ApiException.notFound("USER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
-        }
-        return userStore.toPublicUser(updated);
+        UserEntity updated = userService.updateUser(user.getUserId(), updates);
+        return userService.toPublicUser(updated);
     }
 }

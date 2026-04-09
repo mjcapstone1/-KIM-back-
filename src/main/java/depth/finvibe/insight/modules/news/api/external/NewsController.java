@@ -1,6 +1,8 @@
 package depth.finvibe.insight.modules.news.api.external;
 
 import depth.finvibe.shared.http.ApiException;
+import depth.finvibe.shared.persistence.mongo.news.ThemeNewsDocument;
+import depth.finvibe.shared.persistence.mongo.news.ThemeNewsRepository;
 import depth.finvibe.shared.state.AppState;
 import depth.finvibe.shared.util.Maps;
 import java.util.ArrayList;
@@ -15,13 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class NewsController {
     private final AppState state;
+    private final ThemeNewsRepository themeNewsRepository;
 
-    public NewsController(AppState state) {
+    public NewsController(AppState state, ThemeNewsRepository themeNewsRepository) {
         this.state = state;
+        this.themeNewsRepository = themeNewsRepository;
     }
 
     @GetMapping("/news")
-    public Object news(@RequestParam(required = false) String themeId, @RequestParam(defaultValue = "20") int limit) {
+    public Object news(@RequestParam(required = false) String themeId,
+                       @RequestParam(defaultValue = "20") int limit) {
         int resolvedLimit = Math.max(1, Math.min(100, limit));
         List<Map<String, Object>> rows = flattenNews(themeId);
         return rows.subList(0, Math.min(resolvedLimit, rows.size()));
@@ -29,12 +34,9 @@ public class NewsController {
 
     @GetMapping("/news/{newsId}")
     public Object newsDetail(@PathVariable String newsId) {
-        for (Map<String, Object> item : flattenNews(null)) {
-            if (newsId.equals(Maps.str(item, "id"))) {
-                return item;
-            }
-        }
-        throw ApiException.notFound("NEWS_NOT_FOUND", "뉴스를 찾을 수 없습니다: " + newsId);
+        ThemeNewsDocument doc = themeNewsRepository.findById(newsId)
+                .orElseThrow(() -> ApiException.notFound("NEWS_NOT_FOUND", "뉴스를 찾을 수 없습니다: " + newsId));
+        return toNewsRow(doc);
     }
 
     @GetMapping("/news/keywords/trending")
@@ -43,23 +45,29 @@ public class NewsController {
     }
 
     private List<Map<String, Object>> flattenNews(String themeId) {
+        List<ThemeNewsDocument> docs = (themeId == null || themeId.isBlank())
+                ? themeNewsRepository.findAllByOrderByPublishedAtDesc()
+                : themeNewsRepository.findByThemeIdOrderByPublishedAtDesc(themeId);
+
         List<Map<String, Object>> rows = new ArrayList<>();
-        Map<String, Map<String, Object>> themeMap = new LinkedHashMap<>();
-        for (Map<String, Object> theme : state.listThemes("all")) {
-            themeMap.put(Maps.str(theme, "id"), theme);
-        }
-        for (Map<String, Object> theme : state.listThemes("all")) {
-            String currentThemeId = Maps.str(theme, "id");
-            if (themeId != null && !themeId.equals(currentThemeId)) {
-                continue;
-            }
-            for (Map<String, Object> item : state.getThemeNews(currentThemeId)) {
-                Map<String, Object> row = new LinkedHashMap<>(item);
-                row.put("themeId", currentThemeId);
-                row.put("themeName", Maps.str(themeMap.get(currentThemeId), "name"));
-                rows.add(row);
-            }
+        for (ThemeNewsDocument doc : docs) {
+            rows.add(toNewsRow(doc));
         }
         return rows;
+    }
+
+    private Map<String, Object> toNewsRow(ThemeNewsDocument doc) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("id", doc.getId());
+        row.put("themeId", doc.getThemeId());
+        row.put("themeName", doc.getThemeName());
+        row.put("symbol", doc.getSymbol());
+        row.put("publisher", doc.getPublisher());
+        row.put("timeAgo", doc.getTimeAgo());
+        row.put("title", doc.getTitle());
+        row.put("summary", doc.getSummary());
+        row.put("url", doc.getUrl());
+        row.put("publishedAt", doc.getPublishedAt() == null ? null : doc.getPublishedAt().toString());
+        return row;
     }
 }

@@ -1,21 +1,22 @@
 package depth.finvibe.shared.security;
 
 import depth.finvibe.shared.http.ApiException;
-import depth.finvibe.user.modules.user.application.service.UserStore;
+import depth.finvibe.shared.persistence.user.UserEntity;
+import depth.finvibe.user.modules.user.application.service.UserService;
 import java.util.Map;
 
 public final class AuthService {
     private final JwtService jwtService;
-    private final UserStore userStore;
+    private final UserService userService;
 
-    public AuthService(JwtService jwtService, UserStore userStore) {
+    public AuthService(JwtService jwtService, UserService userService) {
         this.jwtService = jwtService;
-        this.userStore = userStore;
+        this.userService = userService;
     }
 
     public Map<String, Object> issueTokenPair(String userId) {
         Map<String, Object> tokens = jwtService.createTokenPair(userId);
-        userStore.replaceRefreshToken(userId, String.valueOf(tokens.get("refreshToken")), String.valueOf(tokens.get("refreshExpiresAt")));
+        userService.replaceRefreshToken(userId, String.valueOf(tokens.get("refreshToken")), String.valueOf(tokens.get("refreshExpiresAt")));
         return tokens;
     }
 
@@ -37,18 +38,15 @@ public final class AuthService {
 
     public CurrentUser resolveUserByAccessToken(String token) {
         Map<String, Object> claims = jwtService.decodeAndValidate(token, "access");
-        Map<String, Object> user = userStore.getUserById(String.valueOf(claims.get("sub")));
-        if (user == null || !Boolean.TRUE.equals(user.get("isActive"))) {
+        UserEntity user = userService.getUserById(String.valueOf(claims.get("sub")));
+        if (user == null || !user.isActive()) {
             throw ApiException.unauthorized("USER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
         }
-        return userStore.toCurrentUser(user);
+        return userService.toCurrentUser(user);
     }
 
     public Map<String, Object> validateRefreshToken(String refreshToken) {
-        Map<String, Object> stored = userStore.getRefreshToken(refreshToken);
-        if (stored == null) {
-            throw ApiException.unauthorized("INVALID_REFRESH_TOKEN", "유효하지 않은 리프레시 토큰입니다.");
-        }
+        userService.requireValidRefreshToken(refreshToken);
         return jwtService.decodeAndValidate(refreshToken, "refresh");
     }
 

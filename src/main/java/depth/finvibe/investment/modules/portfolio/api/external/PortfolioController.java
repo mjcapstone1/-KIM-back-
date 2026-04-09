@@ -1,7 +1,9 @@
 package depth.finvibe.investment.modules.portfolio.api.external;
 
+import depth.finvibe.investment.modules.portfolio.application.service.PortfolioService;
 import depth.finvibe.shared.http.ApiException;
-import depth.finvibe.shared.state.AppState;
+import depth.finvibe.shared.security.AuthService;
+import depth.finvibe.shared.security.CurrentUser;
 import depth.finvibe.shared.util.Maps;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,134 +15,145 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class PortfolioController {
-    private final AppState state;
+    private final PortfolioService portfolioService;
+    private final AuthService authService;
 
-    public PortfolioController(AppState state) {
-        this.state = state;
+    public PortfolioController(PortfolioService portfolioService, AuthService authService) {
+        this.portfolioService = portfolioService;
+        this.authService = authService;
     }
 
     @GetMapping("/api/v1/simulator/portfolios")
-    public Object portfolios() {
-        return Maps.of("items", state.listPortfolios());
+    public Object portfolios(@RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return Maps.of("items", portfolioService.listPortfolios(currentUser.userId()));
     }
 
     @PostMapping("/api/v1/simulator/portfolios")
-    public Object createPortfolio(@RequestBody(required = false) Map<String, Object> body) {
+    public Object createPortfolio(@RequestHeader(name = "Authorization", required = false) String authorization,
+                                  @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
         Map<String, Object> request = body == null ? new LinkedHashMap<>() : body;
         String name = required(request, "name");
         List<String> stocks = toStringList(request.get("stocks"));
         return Maps.of(
                 "message", "포트폴리오가 생성되었습니다.",
-                "portfolio", state.createPortfolio(name, stocks)
+                "portfolio", portfolioService.createPortfolio(currentUser.userId(), name, stocks)
         );
     }
 
     @PatchMapping("/api/v1/simulator/portfolios/{portfolioId}")
     public Object updatePortfolio(@PathVariable String portfolioId,
+                                  @RequestHeader(name = "Authorization", required = false) String authorization,
                                   @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
         Map<String, Object> request = body == null ? new LinkedHashMap<>() : body;
         return Maps.of(
                 "message", "포트폴리오가 수정되었습니다.",
-                "portfolio", state.updatePortfolio(portfolioId,
+                "portfolio", portfolioService.updatePortfolio(currentUser.userId(), portfolioId,
                         request.containsKey("name") ? required(request, "name") : null,
                         request.containsKey("stocks") ? toStringList(request.get("stocks")) : null)
         );
     }
 
     @DeleteMapping("/api/v1/simulator/portfolios/{portfolioId}")
-    public Object deletePortfolio(@PathVariable String portfolioId) {
-        state.deletePortfolio(portfolioId);
+    public Object deletePortfolio(@PathVariable String portfolioId,
+                                  @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        portfolioService.deletePortfolio(currentUser.userId(), portfolioId);
         return Maps.of("message", "포트폴리오가 삭제되었습니다.", "portfolioId", portfolioId);
     }
 
     @GetMapping("/api/v1/simulator/portfolio-folders")
-    public Object folders() {
-        return Maps.of("items", state.listFolders());
+    public Object folders(@RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return Maps.of("items", portfolioService.listFolders(currentUser.userId()));
     }
 
     @PostMapping("/api/v1/simulator/portfolio-folders")
-    public Object createFolder(@RequestBody(required = false) Map<String, Object> body) {
+    public Object createFolder(@RequestHeader(name = "Authorization", required = false) String authorization,
+                               @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
         Map<String, Object> request = body == null ? new LinkedHashMap<>() : body;
         return Maps.of(
                 "message", "보관함이 생성되었습니다.",
-                "folder", state.createFolder(required(request, "name"), request.containsKey("color") ? required(request, "color") : "#3b82f6")
+                "folder", portfolioService.createFolder(currentUser.userId(), required(request, "name"), request.containsKey("color") ? required(request, "color") : "#3b82f6")
         );
     }
 
     @PatchMapping("/api/v1/simulator/portfolio-folders/{folderId}")
     public Object updateFolder(@PathVariable String folderId,
+                               @RequestHeader(name = "Authorization", required = false) String authorization,
                                @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
         Map<String, Object> request = body == null ? new LinkedHashMap<>() : body;
         return Maps.of(
                 "message", "보관함이 수정되었습니다.",
-                "folder", state.updateFolder(folderId,
+                "folder", portfolioService.updateFolder(currentUser.userId(), folderId,
                         request.containsKey("name") ? required(request, "name") : null,
                         request.containsKey("color") ? required(request, "color") : null)
         );
     }
 
     @DeleteMapping("/api/v1/simulator/portfolio-folders/{folderId}")
-    public Object deleteFolder(@PathVariable String folderId) {
-        state.deleteFolder(folderId);
+    public Object deleteFolder(@PathVariable String folderId,
+                               @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        portfolioService.deleteFolder(currentUser.userId(), folderId);
         return Maps.of("message", "보관함이 삭제되었습니다.", "folderId", folderId);
     }
 
     @GetMapping("/api/v1/simulator/portfolio-holdings")
-    public Object portfolioHoldings(@RequestParam(required = false) String folderId) {
-        return Maps.of("folderId", folderId, "items", state.listHoldings(folderId));
+    public Object portfolioHoldings(@RequestHeader(name = "Authorization", required = false) String authorization,
+                                    @RequestParam(required = false) String folderId) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return Maps.of("folderId", folderId, "items", portfolioService.listHoldings(currentUser.userId(), folderId));
     }
 
     @GetMapping("/portfolios")
-    public Object portfoliosAlias() {
-        return state.listPortfolios();
+    public Object portfoliosAlias(@RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return portfolioService.listPortfolios(currentUser.userId());
     }
 
     @PostMapping("/portfolios")
-    public Object createPortfolioAlias(@RequestBody(required = false) Map<String, Object> body) {
+    public Object createPortfolioAlias(@RequestHeader(name = "Authorization", required = false) String authorization,
+                                       @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
         Map<String, Object> request = body == null ? new LinkedHashMap<>() : body;
-        return state.createPortfolio(required(request, "name"), toStringList(request.get("stocks")));
+        return portfolioService.createPortfolio(currentUser.userId(), required(request, "name"), toStringList(request.get("stocks")));
     }
 
     @PatchMapping("/portfolios/{portfolioId}")
     public Object updatePortfolioAlias(@PathVariable String portfolioId,
+                                       @RequestHeader(name = "Authorization", required = false) String authorization,
                                        @RequestBody(required = false) Map<String, Object> body) {
+        CurrentUser currentUser = authService.requireUser(authorization);
         Map<String, Object> request = body == null ? new LinkedHashMap<>() : body;
-        return state.updatePortfolio(portfolioId,
+        return portfolioService.updatePortfolio(currentUser.userId(), portfolioId,
                 request.containsKey("name") ? required(request, "name") : null,
                 request.containsKey("stocks") ? toStringList(request.get("stocks")) : null);
     }
 
     @DeleteMapping("/portfolios/{portfolioId}")
-    public Object deletePortfolioAlias(@PathVariable String portfolioId) {
-        state.deletePortfolio(portfolioId);
+    public Object deletePortfolioAlias(@PathVariable String portfolioId,
+                                       @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        portfolioService.deletePortfolio(currentUser.userId(), portfolioId);
         return Maps.of("deleted", true, "portfolioId", portfolioId);
     }
 
     @GetMapping("/portfolios/{portfolioId}/assets")
-    public Object portfolioAssets(@PathVariable String portfolioId) {
-        Map<String, Object> portfolio = null;
-        for (Map<String, Object> item : state.listPortfolios()) {
-            if (portfolioId.equals(Maps.str(item, "id"))) {
-                portfolio = item;
-                break;
-            }
-        }
-        if (portfolio == null) {
-            throw ApiException.notFound("PORTFOLIO_NOT_FOUND", "포트폴리오를 찾을 수 없습니다: " + portfolioId);
-        }
-        List<String> wanted = toStringList(portfolio.get("stocks"));
-        List<Map<String, Object>> rows = new ArrayList<>();
-        for (Map<String, Object> holding : state.listHoldings(null)) {
-            if (wanted.contains(Maps.str(holding, "id"))) {
-                rows.add(holding);
-            }
-        }
-        return rows;
+    public Object portfolioAssets(@PathVariable String portfolioId,
+                                  @RequestHeader(name = "Authorization", required = false) String authorization) {
+        CurrentUser currentUser = authService.requireUser(authorization);
+        return portfolioService.portfolioAssets(currentUser.userId(), portfolioId);
     }
 
     @SuppressWarnings("unchecked")

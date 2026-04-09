@@ -1,8 +1,11 @@
 package depth.finvibe.insight.modules.theme.api.external;
 
+import depth.finvibe.shared.persistence.mongo.news.ThemeNewsDocument;
+import depth.finvibe.shared.persistence.mongo.news.ThemeNewsRepository;
 import depth.finvibe.shared.state.AppState;
 import depth.finvibe.shared.util.Maps;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ThemeController {
     private final AppState state;
+    private final ThemeNewsRepository themeNewsRepository;
 
-    public ThemeController(AppState state) {
+    public ThemeController(AppState state, ThemeNewsRepository themeNewsRepository) {
         this.state = state;
+        this.themeNewsRepository = themeNewsRepository;
     }
 
     @GetMapping("/api/v1/home/themes")
@@ -29,12 +34,13 @@ public class ThemeController {
         return Maps.of(
                 "theme", state.getTheme(themeId),
                 "chartData", state.getThemeChart(themeId, 30),
-                "news", state.getThemeNews(themeId)
+                "news", themeNewsItems(themeId)
         );
     }
 
     @GetMapping("/api/v1/home/themes/{themeId}/chart")
-    public Map<String, Object> themeChart(@PathVariable String themeId, @RequestParam(defaultValue = "30") int days) {
+    public Map<String, Object> themeChart(@PathVariable String themeId,
+                                          @RequestParam(defaultValue = "30") int days) {
         int resolvedDays = clamp(days, 5, 365);
         return Maps.of(
                 "themeId", themeId,
@@ -47,7 +53,7 @@ public class ThemeController {
     public Map<String, Object> themeNews(@PathVariable String themeId) {
         return Maps.of(
                 "themeId", themeId,
-                "items", state.getThemeNews(themeId)
+                "items", themeNewsItems(themeId)
         );
     }
 
@@ -96,6 +102,25 @@ public class ThemeController {
         return rows;
     }
 
+    private List<Map<String, Object>> themeNewsItems(String themeId) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (ThemeNewsDocument doc : themeNewsRepository.findByThemeIdOrderByPublishedAtDesc(themeId)) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("id", doc.getId());
+            row.put("themeId", doc.getThemeId());
+            row.put("themeName", doc.getThemeName());
+            row.put("symbol", doc.getSymbol());
+            row.put("publisher", doc.getPublisher());
+            row.put("timeAgo", doc.getTimeAgo());
+            row.put("title", doc.getTitle());
+            row.put("summary", doc.getSummary());
+            row.put("url", doc.getUrl());
+            row.put("publishedAt", doc.getPublishedAt() == null ? null : doc.getPublishedAt().toString());
+            rows.add(row);
+        }
+        return rows;
+    }
+
     private Map<String, Object> categorySummary(String categoryId) {
         List<Map<String, Object>> themes = state.listThemes(categoryId);
         double total = 0.0;
@@ -111,7 +136,11 @@ public class ThemeController {
         double average = count == 0 ? 0.0 : Math.round((total / count) * 100.0) / 100.0;
         return Maps.of(
                 "id", categoryId,
-                "name", switch (categoryId) { case "industry" -> "산업"; case "style" -> "스타일"; default -> categoryId; },
+                "name", switch (categoryId) {
+                    case "industry" -> "산업";
+                    case "style" -> "스타일";
+                    default -> categoryId;
+                },
                 "themeCount", themes.size(),
                 "averageChangeRate", average,
                 "topThemes", themes.subList(0, Math.min(3, themes.size()))
