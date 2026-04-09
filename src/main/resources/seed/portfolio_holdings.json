@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "name": "삼성전자",
+    "code": "005930",
+    "quantity": 10,
+    "avgPrice": 70000,
+    "currentPrice": 71200,
+    "type": "domestic",
+    "folderId": "tech"
+  },
+  {
+    "id": "3",
+    "name": "NAVER",
+    "code": "035420",
+    "quantity": 5,
+    "avgPrice": 230000,
+    "currentPrice": 234500,
+    "type": "domestic",
+    "folderId": "tech"
+  },
+  {
+    "id": "5",
+    "name": "LG에너지솔루션",
+    "code": "373220",
+    "quantity": 2,
+    "avgPrice": 400000,
+    "currentPrice": 412000,
+    "type": "domestic",
+    "folderId": "growth"
+  }
+]
