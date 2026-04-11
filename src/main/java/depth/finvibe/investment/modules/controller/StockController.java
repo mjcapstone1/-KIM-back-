@@ -17,13 +17,19 @@ public class StockController {
         this.stockService = stockService;
     }
 
-    // 🔥 거래량 TOP
+    // 🔥 전체 종목 (30개) ✅ 추가
+    @GetMapping("/all")
+    public List<Map<String, Object>> getAllStocks() {
+        return stockService.getAllStocks();
+    }
+
+    // 🔥 거래량 TOP 5
     @GetMapping("/top-volume")
     public List<Map<String, Object>> getTopVolumeStocks() {
         return stockService.getTopVolumeStocks();
     }
 
-    // 🔥 급등 TOP
+    // 🔥 급등 TOP 5
     @GetMapping("/top-gainers")
     public List<Map<String, Object>> getTopGainers() {
         return stockService.getTopGainers();

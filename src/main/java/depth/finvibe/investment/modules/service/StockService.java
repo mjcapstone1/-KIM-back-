@@ -24,6 +24,7 @@ public class StockService {
     // 🔥 캐싱 데이터
     private List<Map<String, Object>> cachedVolume = new ArrayList<>();
     private List<Map<String, Object>> cachedGainers = new ArrayList<>();
+    private List<Map<String, Object>> cachedAll = new ArrayList<>(); // ✅ 추가
 
     // 🔥 종목 30개
     private final String[][] STOCKS = {
@@ -37,7 +38,7 @@ public class StockService {
             {"086790","하나금융지주"},{"015760","한국전력"}
     };
 
-    // 🔥 서버 시작 시 1회 실행 (초기 데이터 채우기)
+    // 🔥 서버 시작 시 1회 실행
     @PostConstruct
     public void init() {
         updateStockCache();
@@ -97,10 +98,9 @@ public class StockService {
 
         List<Map<String, Object>> temp = new ArrayList<>();
 
-        // 👉 API 보호: 20개만 조회
-        for (int i = 0; i < Math.min(20, STOCKS.length); i++) {
+        // ✅ 30개 전부 조회
+        for (String[] stock : STOCKS) {
 
-            String[] stock = STOCKS[i];
             String code = stock[0];
             String name = stock[1];
 
@@ -112,8 +112,12 @@ public class StockService {
 
             temp.add(info);
 
-            try { Thread.sleep(100); } catch (Exception ignored) {}
+            // 🔥 API 보호
+            try { Thread.sleep(120); } catch (Exception ignored) {}
         }
+
+        // ✅ 전체 캐시 저장 (핵심🔥)
+        cachedAll = new ArrayList<>(temp);
 
         // 🔥 거래량 TOP 5
         temp.sort((a, b) -> {
@@ -121,7 +125,6 @@ public class StockService {
             long v2 = Long.parseLong(b.get("volume").toString());
             return Long.compare(v2, v1);
         });
-
         cachedVolume = new ArrayList<>(temp.subList(0, Math.min(5, temp.size())));
 
         // 🔥 급등 TOP 5
@@ -130,13 +133,17 @@ public class StockService {
             double r2 = Double.parseDouble(b.get("rate").toString());
             return Double.compare(r2, r1);
         });
-
         cachedGainers = new ArrayList<>(temp.subList(0, Math.min(5, temp.size())));
 
         System.out.println("✅ 캐시 갱신 완료");
     }
 
-    // 🔥 캐시 반환 (API 호출 없음)
+    // 🔥 전체 종목 반환 (API 호출 ❌)
+    public List<Map<String, Object>> getAllStocks() {
+        return cachedAll;
+    }
+
+    // 🔥 TOP 반환
     public List<Map<String, Object>> getTopVolumeStocks() {
         return cachedVolume;
     }
