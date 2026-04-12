@@ -5,82 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bbce5fd6-292c-416d-abe2-ad4324a5b92e" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/create_migrations.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/boot/config/KafkaConsumerConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/boot/config/MongoConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/boot/config/MongoSeedInitializer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/insight/modules/ai/api/external/AiInsightController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/manifest/modules/feed/api/external/FeedController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/outbox/ConsumedEventJdbcRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/outbox/OrderExecutedSnapshotConsumer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/outbox/OutboxEventRow.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/outbox/OutboxJdbcRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/outbox/OutboxPublisher.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/outbox/OutboxRecoveryScheduler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/outbox/WalletChangedConsumer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/feed/SearchLogDocument.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/feed/SearchLogRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/feed/UserActivityFeedDocument.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/feed/UserActivityFeedRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/insight/AiInsightDocument.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/insight/AiInsightRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/insight/ExternalApiRawLogDocument.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/insight/ExternalApiRawLogRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/news/NewsArticleDocument.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/news/NewsArticleRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/news/ThemeNewsDocument.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/mongo/news/ThemeNewsRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/ranking/UserProfitSnapshotDailyEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/persistence/ranking/UserProfitSnapshotDailyRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/ranking/UserProfitSnapshotDailyService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/redis/RedisJsonCacheService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/redis/RedisKeys.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/application-prod.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/db/migration/V10__create_consumed_events.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/db/migration/V9__strengthen_outbox_for_production.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.2.1/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.2.1/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.2.1/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.2.1/checksums/md5-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.2.1/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.2.1/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.2.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.2.1/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/-KIM-back-/.env" beforeDir="false" afterPath="$PROJECT_DIR$/-KIM-back-/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.2.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.2.1/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.2.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.2.1/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.2.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.2.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.2.1/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.2.1/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/FinvibeSpringBootBffApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/FinvibeSpringBootBffApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/boot/config/ServiceBeanConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/boot/config/ServiceBeanConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/investment/modules/market/api/external/MarketController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/investment/modules/market/api/external/MarketController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/investment/modules/portfolio/api/external/PortfolioController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/investment/modules/portfolio/api/external/PortfolioController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/investment/modules/trade/api/external/TradeController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/investment/modules/trade/api/external/TradeController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/investment/modules/wallet/api/external/WalletController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/investment/modules/wallet/api/external/WalletController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/manifest/modules/home/api/external/HomeController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/manifest/modules/home/api/external/HomeController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/manifest/modules/search/api/external/SearchController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/manifest/modules/search/api/external/SearchController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/shared/security/AuthService.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/shared/security/AuthService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/user/modules/user/api/external/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/user/modules/user/api/external/AuthController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/user/modules/user/api/external/MemberController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/depth/finvibe/user/modules/user/api/external/MemberController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/resources/main/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/build/resources/main/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/FinvibeSpringBootBffApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/FinvibeSpringBootBffApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/boot/config/ServiceBeanConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/boot/config/ServiceBeanConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/insight/modules/news/api/external/NewsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/insight/modules/news/api/external/NewsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/insight/modules/theme/api/external/ThemeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/insight/modules/theme/api/external/ThemeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/investment/modules/market/api/external/MarketController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/investment/modules/market/api/external/MarketController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/investment/modules/portfolio/api/external/PortfolioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/investment/modules/portfolio/api/external/PortfolioController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/investment/modules/trade/api/external/TradeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/investment/modules/trade/api/external/TradeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/investment/modules/wallet/api/external/WalletController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/investment/modules/wallet/api/external/WalletController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/manifest/modules/home/api/external/HomeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/manifest/modules/home/api/external/HomeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/manifest/modules/search/api/external/SearchController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/manifest/modules/search/api/external/SearchController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/security/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/shared/security/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/user/modules/user/api/external/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/user/modules/user/api/external/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/depth/finvibe/user/modules/user/api/external/MemberController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/depth/finvibe/user/modules/user/api/external/MemberController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -198,7 +130,7 @@
       <workItem from="1775487692435" duration="9447000" />
       <workItem from="1775542821532" duration="32676000" />
       <workItem from="1775715312485" duration="496000" />
-      <workItem from="1775715829686" duration="4150000" />
+      <workItem from="1775715829686" duration="14122000" />
     </task>
     <servers />
   </component>
