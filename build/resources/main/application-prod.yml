@@ -1,0 +1,38 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 10
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+        compression.type: zstd
+        linger.ms: 10
+        batch.size: 32768
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+      auto-offset-reset: latest
+      max-poll-records: 100
+      properties:
+        isolation.level: read_committed
+
+    listener:
+      ack-mode: manual_immediate
+      missing-topics-fatal: false
+
+finvibe:
+  outbox:
+    batch-size: 100
+    poll-delay-ms: 500
+    recovery-delay-ms: 30000
+    lock-timeout-seconds: 60
+    max-retry-count: 20
