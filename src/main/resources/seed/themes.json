@@ -1,0 +1,359 @@
+[
+  {
+    "name": "AI 테마",
+    "category": "industry",
+    "stocks": [
+      "엔비디아",
+      "OpenAI",
+      "Anthropic"
+    ],
+    "change": "+6.45%",
+    "summary": "생성형 AI 기술 혁명. ChatGPT 등 AI 서비스 글로벌 확산",
+    "color": "#8b5cf6",
+    "topStock": "엔비디아",
+    "basePrice": 892300,
+    "id": "01-ai",
+    "topStockId": "9",
+    "topStockName": "NVIDIA"
+  },
+  {
+    "name": "반도체 테마",
+    "category": "industry",
+    "stocks": [
+      "SK하이닉스",
+      "삼성전자",
+      "TSMC"
+    ],
+    "change": "+4.89%",
+    "summary": "글로벌 반도체 수요 증가. 메모리 및 시스템 반도체 강세",
+    "color": "#06b6d4",
+    "topStock": "SK하이닉스",
+    "basePrice": 186500,
+    "id": "02-theme-2",
+    "topStockId": "2",
+    "topStockName": "SK하이닉스"
+  },
+  {
+    "name": "전기차 테마",
+    "category": "industry",
+    "stocks": [
+      "Tesla",
+      "BYD",
+      "Rivian"
+    ],
+    "change": "+5.12%",
+    "summary": "전기차 시장 급성장. 배터리 기술 발전 및 충전 인프라 확대",
+    "color": "#22c55e",
+    "topStock": "Tesla",
+    "basePrice": 445600,
+    "id": "03-theme-3",
+    "topStockId": "7",
+    "topStockName": "Tesla"
+  },
+  {
+    "name": "플랫폼 테마",
+    "category": "industry",
+    "stocks": [
+      "NAVER",
+      "카카오",
+      "쿠팡"
+    ],
+    "change": "+3.67%",
+    "summary": "디지털 플랫폼 경쟁 심화. 커머스·금융·콘텐츠 통합 서비스 확대",
+    "color": "#f59e0b",
+    "topStock": "NAVER",
+    "basePrice": 178000,
+    "id": "04-theme-4",
+    "topStockId": "3",
+    "topStockName": "NAVER"
+  },
+  {
+    "name": "우주항공 테마",
+    "category": "industry",
+    "stocks": [
+      "한화에어로스페이스",
+      "SpaceX",
+      "Blue Origin"
+    ],
+    "change": "+5.67%",
+    "summary": "민간 우주산업 본격화. 누리호 성공 및 위성 발사 시장 확대",
+    "color": "#6366f1",
+    "topStock": "한화에어로스페이스",
+    "basePrice": 234500,
+    "id": "05-theme-5",
+    "topStockId": "105",
+    "topStockName": "한화에어로스페이스"
+  },
+  {
+    "name": "2차전지 테마",
+    "category": "industry",
+    "stocks": [
+      "LG에너지솔루션",
+      "삼성SDI",
+      "포스코퓨처엠"
+    ],
+    "change": "+3.87%",
+    "summary": "북미 전기차 보조금 정책 확대 소식에 2차전지 관련주 강세",
+    "color": "#22c55e",
+    "topStock": "LG에너지솔루션",
+    "basePrice": 412000,
+    "id": "06-2",
+    "topStockId": "5",
+    "topStockName": "LG에너지솔루션"
+  },
+  {
+    "name": "K-방산 테마",
+    "category": "industry",
+    "stocks": [
+      "한화에어로스페이스",
+      "LIG넥스원",
+      "현대로템"
+    ],
+    "change": "+4.12%",
+    "summary": "폴란드 추가 수출 계약 체결 소식. 중동 지역 방산 협력 논의 진행 중",
+    "color": "#ef4444",
+    "topStock": "한화에어로스페이스",
+    "basePrice": 234500,
+    "id": "07-k",
+    "topStockId": "105",
+    "topStockName": "한화에어로스페이스"
+  },
+  {
+    "name": "바이오·제약 테마",
+    "category": "industry",
+    "stocks": [
+      "셀트리온",
+      "삼성바이오로직스",
+      "유한양행"
+    ],
+    "change": "+2.45%",
+    "summary": "셀트리온 신약 FDA 승인 감. 바이오시밀러 글로벌 시장 점유율 확대 전망",
+    "color": "#06b6d4",
+    "topStock": "셀트리온",
+    "basePrice": 178900,
+    "id": "08-theme-8",
+    "topStockId": "59",
+    "topStockName": "셀트리온"
+  },
+  {
+    "name": "친환경·수소 테마",
+    "category": "industry",
+    "stocks": [
+      "두산퓨얼셀",
+      "효성중공업",
+      "한화솔루션"
+    ],
+    "change": "+3.65%",
+    "summary": "정부 수소경제 로드맵 발표. 친환경 에너지 인프라 투자 확대 계획 공개",
+    "color": "#10b981",
+    "topStock": "두산퓨얼셀",
+    "basePrice": 67800,
+    "id": "09-theme-9",
+    "topStockId": "106",
+    "topStockName": "두산퓨얼셀"
+  },
+  {
+    "name": "자율주행·모빌리티 테마",
+    "category": "industry",
+    "stocks": [
+      "현대모비스",
+      "만도",
+      "대창"
+    ],
+    "change": "+4.56%",
+    "summary": "글로벌 자율주행 기술 경쟁 심화. 국내 완성차 업체 레벨4 자율주행 기술 개발 가속화",
+    "color": "#f59e0b",
+    "topStock": "현대모비스",
+    "basePrice": 234500,
+    "id": "10-theme-10",
+    "topStockId": "107",
+    "topStockName": "현대모비스"
+  },
+  {
+    "name": "메타버스·게임 테마",
+    "category": "industry",
+    "stocks": [
+      "넷마블",
+      "크래프톤",
+      "위메이드"
+    ],
+    "change": "+2.89%",
+    "summary": "신규 블록체인 게임 출시 기대감. 메타버스 플랫폼 글로벌 확장 계획 발표",
+    "color": "#ec4899",
+    "topStock": "넷마블",
+    "basePrice": 54300,
+    "id": "11-theme-11",
+    "topStockId": "57",
+    "topStockName": "넷마블"
+  },
+  {
+    "name": "클라우드·SaaS 테마",
+    "category": "industry",
+    "stocks": [
+      "NAVER",
+      "카카오",
+      "더존비즈온"
+    ],
+    "change": "+3.21%",
+    "summary": "기업 디지털 전환 가속화로 클라우드 서비스 수요 급증. 국내 SaaS 기업 성장세",
+    "color": "#06b6d4",
+    "topStock": "NAVER",
+    "basePrice": 178000,
+    "id": "12-saas",
+    "topStockId": "3",
+    "topStockName": "NAVER"
+  },
+  {
+    "name": "로봇·자동화 테마",
+    "category": "industry",
+    "stocks": [
+      "현대로보틱스",
+      "두산로보틱스",
+      "레인보우로보틱스"
+    ],
+    "change": "+4.34%",
+    "summary": "스마트 팩토리 확산으로 산업용 로봇 수요 증가. AI 로봇 기술 발전 가속",
+    "color": "#8b5cf6",
+    "topStock": "현대로보틱스",
+    "basePrice": 112300,
+    "id": "13-theme-13",
+    "topStockId": "108",
+    "topStockName": "현대로보틱스"
+  },
+  {
+    "name": "반려동물 테마",
+    "category": "industry",
+    "stocks": [
+      "케어랩스",
+      "지니언스",
+      "팜스토리"
+    ],
+    "change": "+2.12%",
+    "summary": "반려동물 시장 규모 6조 돌파. 펫테크 산업 성장세 지속",
+    "color": "#f97316",
+    "topStock": "케어랩스",
+    "basePrice": 45600,
+    "id": "14-theme-14",
+    "topStockId": "109",
+    "topStockName": "케어랩스"
+  },
+  {
+    "name": "K-뷰티 테마",
+    "category": "industry",
+    "stocks": [
+      "아모레퍼시픽",
+      "LG생활건강",
+      "코스맥스"
+    ],
+    "change": "+3.45%",
+    "summary": "K-뷰티 글로벌 인기 지속. 중국 화장품 수출 회복세",
+    "color": "#ec4899",
+    "topStock": "아모레퍼시픽",
+    "basePrice": 145600,
+    "id": "15-k",
+    "topStockId": "75",
+    "topStockName": "아모레퍼시픽"
+  },
+  {
+    "name": "배당주",
+    "category": "style",
+    "stocks": [
+      "KB금융",
+      "신한지주",
+      "KT&G"
+    ],
+    "change": "+1.89%",
+    "summary": "고배당주 선호도 증가. 안정적인 배당수익 추구 투자자 증가",
+    "color": "#14b8a6",
+    "topStock": "KB금융",
+    "basePrice": 67800,
+    "id": "16-theme-16",
+    "topStockId": "68",
+    "topStockName": "KB금융"
+  },
+  {
+    "name": "성장주",
+    "category": "style",
+    "stocks": [
+      "엔비디아",
+      "Tesla",
+      "크래프톤"
+    ],
+    "change": "+6.78%",
+    "summary": "기술주 중심 성장주 강세. 미래 성장 가능성 높은 종목에 자금 집중",
+    "color": "#8b5cf6",
+    "topStock": "엔비디아",
+    "basePrice": 892300,
+    "id": "17-theme-17",
+    "topStockId": "9",
+    "topStockName": "NVIDIA"
+  },
+  {
+    "name": "가치주",
+    "category": "style",
+    "stocks": [
+      "현대차",
+      "포스코홀딩스",
+      "LG화학"
+    ],
+    "change": "+2.34%",
+    "summary": "저평가된 우량주에 관심. PBR 1 이하 종목 재평가 기대",
+    "color": "#06b6d4",
+    "topStock": "현대차",
+    "basePrice": 234500,
+    "id": "18-theme-18",
+    "topStockId": "63",
+    "topStockName": "현대차"
+  },
+  {
+    "name": "ETF",
+    "category": "style",
+    "stocks": [
+      "TIGER 미국S&P500",
+      "KODEX 반도체",
+      "TIGER 2차전지"
+    ],
+    "change": "+3.21%",
+    "summary": "ETF 순자산 100조 돌파. 테마형·레버리지 ETF 인기",
+    "color": "#10b981",
+    "topStock": "TIGER 미국S&P500",
+    "basePrice": 23450,
+    "id": "19-etf",
+    "topStockId": "110",
+    "topStockName": "TIGER 미국S&P500"
+  },
+  {
+    "name": "공모주",
+    "category": "style",
+    "stocks": [
+      "LG에너지솔루션",
+      "카카오뱅크",
+      "크래프톤"
+    ],
+    "change": "+4.56%",
+    "summary": "상반기 IPO 시장 활기. 대형 공모주 청약 경쟁률 상승",
+    "color": "#f59e0b",
+    "topStock": "LG에너지솔루션",
+    "basePrice": 412000,
+    "id": "20-theme-20",
+    "topStockId": "5",
+    "topStockName": "LG에너지솔루션"
+  },
+  {
+    "name": "테마주",
+    "category": "style",
+    "stocks": [
+      "2차전지",
+      "K-방산",
+      "양자컴퓨팅"
+    ],
+    "change": "+5.23%",
+    "summary": "이슈 중심 단기 수급 장세. 정책·뉴스 테마 급등",
+    "color": "#ec4899",
+    "topStock": "LG에너지솔루션",
+    "basePrice": 412000,
+    "id": "21-theme-21",
+    "topStockId": "5",
+    "topStockName": "LG에너지솔루션"
+  }
+]

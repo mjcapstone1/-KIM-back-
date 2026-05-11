@@ -1,0 +1,29 @@
+[
+  {
+    "id": "challenge-hot-esg",
+    "title": "이번 주 HOT 챌린지",
+    "description": "ESG 테마 종목으로 최고 수익률 달성하기",
+    "participants": 1250,
+    "timeLeft": "3일 남음",
+    "status": "active",
+    "category": "theme"
+  },
+  {
+    "id": "challenge-school-league",
+    "title": "서울대학교 리그",
+    "description": "같은 학교 학생들과 순위를 겨루는 학교별 경쟁",
+    "participants": 284,
+    "timeLeft": "월간 집계",
+    "status": "active",
+    "category": "league"
+  },
+  {
+    "id": "challenge-squad",
+    "title": "투자 고수들 🚀",
+    "description": "친구 5명과 함께하는 스쿼드 수익률 경쟁",
+    "participants": 5,
+    "timeLeft": "상시",
+    "status": "active",
+    "category": "squad"
+  }
+]

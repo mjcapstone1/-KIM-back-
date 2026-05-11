@@ -1,0 +1,17 @@
+[
+  {
+    "id": "tech",
+    "name": "기술주",
+    "color": "#3b82f6"
+  },
+  {
+    "id": "dividend",
+    "name": "배당주",
+    "color": "#10b981"
+  },
+  {
+    "id": "growth",
+    "name": "성장주",
+    "color": "#8b5cf6"
+  }
+]

@@ -1,0 +1,41 @@
+ALTER TABLE portfolio_stocks
+    DROP FOREIGN KEY fk_portfolio_stocks_portfolio;
+
+ALTER TABLE portfolios
+    MODIFY portfolio_id VARCHAR(50) NOT NULL;
+
+ALTER TABLE portfolio_stocks
+    MODIFY portfolio_id VARCHAR(50) NOT NULL;
+
+ALTER TABLE portfolio_stocks
+    ADD CONSTRAINT fk_portfolio_stocks_portfolio FOREIGN KEY (portfolio_id) REFERENCES portfolios(portfolio_id) ON DELETE CASCADE;
+
+CREATE TABLE IF NOT EXISTS user_squad_memberships (
+    user_id CHAR(36) NOT NULL,
+    squad_id VARCHAR(64) NOT NULL,
+    joined_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id),
+    INDEX idx_user_squad_memberships_squad_id (squad_id),
+    CONSTRAINT fk_user_squad_memberships_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DELETE FROM user_challenge_progress WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM user_squad_memberships WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM user_lessons WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM user_courses WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM user_learning_profiles WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM user_profit_snapshot_daily WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM wallet_ledger WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM trade_executions WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM trade_orders WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM portfolio_stocks WHERE portfolio_id IN (
+    SELECT portfolio_id FROM portfolios WHERE user_id = '11111111-1111-1111-1111-111111111111'
+);
+DELETE FROM portfolios WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM assets WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM folders WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM favorite_stocks WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM refresh_tokens WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM wallets WHERE user_id = '11111111-1111-1111-1111-111111111111';
+DELETE FROM users WHERE user_id = '11111111-1111-1111-1111-111111111111';

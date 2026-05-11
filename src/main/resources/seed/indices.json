@@ -1,0 +1,56 @@
+[
+  {
+    "name": "코스피종합",
+    "subtitle": "한국거래소 상장 주식 평균",
+    "value": 2501.24,
+    "baseValue": 2494.14,
+    "change": 7.1,
+    "percent": 0.28,
+    "isUp": true
+  },
+  {
+    "name": "코스닥",
+    "subtitle": "",
+    "value": 721.58,
+    "baseValue": 718.34,
+    "change": 3.24,
+    "percent": 0.45,
+    "isUp": true
+  },
+  {
+    "name": "다우지수",
+    "subtitle": "",
+    "value": 43876.2,
+    "baseValue": 43880.9,
+    "change": -4.7,
+    "percent": -0.01,
+    "isUp": false
+  },
+  {
+    "name": "나스닥",
+    "subtitle": "",
+    "value": 19156.61,
+    "baseValue": 19432.84,
+    "change": -276.23,
+    "percent": -1.42,
+    "isUp": false
+  },
+  {
+    "name": "S&P 500",
+    "subtitle": "",
+    "value": 5981.32,
+    "baseValue": 6017.32,
+    "change": -36.0,
+    "percent": -0.6,
+    "isUp": false
+  },
+  {
+    "name": "달러-원",
+    "subtitle": "",
+    "value": 1402.5,
+    "baseValue": 1394.3,
+    "change": 8.2,
+    "percent": 0.59,
+    "isUp": true
+  }
+]

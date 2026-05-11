@@ -1,0 +1,29 @@
+{
+  "favorites": [
+    "1"
+  ],
+  "tradingStocks": [
+    "1",
+    "3"
+  ],
+  "reservedStocks": [
+  ],
+  "walletBalance": 50000000,
+  "exchangeRate": 1320,
+  "portfolios": [
+    {
+      "id": "1",
+      "name": "성장주 포트폴리오",
+      "stocks": [
+      ]
+    },
+    {
+      "id": "2",
+      "name": "배당주 포트폴리오",
+      "stocks": [
+        "1",
+        "3"
+      ]
+    }
+  ]
+}

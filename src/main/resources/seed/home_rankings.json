@@ -1,0 +1,730 @@
+{
+  "popular": [
+
+    {
+      "rank": 1,
+      "name": "삼성전자",
+      "ticker": "005930",
+      "price": "74,200원",
+      "change": "-1.23%",
+      "volume": "720억",
+      "isUp": false,
+      "stockId": "1",
+      "canonicalName": "삼성전자"
+    },
+    {
+      "rank": 2,
+      "name": "SK하이닉스",
+      "ticker": "000660",
+      "price": "186,500원",
+      "change": "+0.54%",
+      "volume": "650억",
+      "isUp": true,
+      "stockId": "2",
+      "canonicalName": "SK하이닉스"
+    },
+    {
+      "rank": 3,
+      "name": "NAVER",
+      "ticker": "035420",
+      "price": "178,000원",
+      "change": "+2.11%",
+      "volume": "580억",
+      "isUp": true,
+      "stockId": "3",
+      "canonicalName": "NAVER"
+    },
+    {
+      "rank": 4,
+      "name": "카카오",
+      "ticker": "035720",
+      "price": "45,600원",
+      "change": "-0.87%",
+      "volume": "520억",
+      "isUp": false,
+      "stockId": "4",
+      "canonicalName": "카카오"
+    },
+    {
+      "rank": 5,
+      "name": "LG에너지솔루션",
+      "ticker": "373220",
+      "price": "412,000원",
+      "change": "-2.13%",
+      "volume": "460억",
+      "isUp": false,
+      "stockId": "5",
+      "canonicalName": "LG에너지솔루션"
+    },
+    {
+      "rank": 6,
+      "name": "현대차",
+      "ticker": "005380",
+      "price": "234,500원",
+      "change": "+0.92%",
+      "volume": "430억",
+      "isUp": true,
+      "stockId": "63",
+      "canonicalName": "현대차"
+    }
+  ],
+  "volume": [
+    {
+      "rank": 1,
+      "name": "삼성전자",
+      "ticker": "005930",
+      "price": "74,200원",
+      "change": "+0.45%",
+      "volume": "2.5천억",
+      "isUp": true,
+      "stockId": "1",
+      "canonicalName": "삼성전자"
+    },
+    {
+      "rank": 2,
+      "name": "NAVER",
+      "ticker": "035420",
+      "price": "178,000원",
+      "change": "+1.23%",
+      "volume": "1.8천억",
+      "isUp": true,
+      "stockId": "3",
+      "canonicalName": "NAVER"
+    },
+    {
+      "rank": 3,
+      "name": "SK하이닉스",
+      "ticker": "000660",
+      "price": "186,500원",
+      "change": "+2.67%",
+      "volume": "1.2천억",
+      "isUp": true,
+      "stockId": "2",
+      "canonicalName": "SK하이닉스"
+    },
+    {
+      "rank": 4,
+      "name": "카카오",
+      "ticker": "035720",
+      "price": "45,600원",
+      "change": "-0.34%",
+      "volume": "850억",
+      "isUp": false,
+      "stockId": "4",
+      "canonicalName": "카카오"
+    },
+    {
+      "rank": 5,
+      "name": "LG에너지솔루션",
+      "ticker": "373220",
+      "price": "412,000원",
+      "change": "-1.45%",
+      "volume": "780억",
+      "isUp": false,
+      "stockId": "5",
+      "canonicalName": "LG에너지솔루션"
+    },
+    {
+      "rank": 6,
+      "name": "현대차",
+      "ticker": "005380",
+      "price": "234,500원",
+      "change": "+0.78%",
+      "volume": "720억",
+      "isUp": true,
+      "stockId": "63",
+      "canonicalName": "현대차"
+    },
+    {
+      "rank": 7,
+      "name": "기아",
+      "ticker": "000270",
+      "price": "112,300원",
+      "change": "+1.89%",
+      "volume": "680억",
+      "isUp": true,
+      "stockId": "64",
+      "canonicalName": "기아"
+    },
+    {
+      "rank": 8,
+      "name": "KB금융",
+      "ticker": "105560",
+      "price": "67,800원",
+      "change": "+1.34%",
+      "volume": "620억",
+      "isUp": true,
+      "stockId": "68",
+      "canonicalName": "KB금융"
+    },
+    {
+      "rank": 9,
+      "name": "POSCO홀딩스",
+      "ticker": "005490",
+      "price": "389,500원",
+      "change": "-0.56%",
+      "volume": "590억",
+      "isUp": false,
+      "stockId": "67",
+      "canonicalName": "포스코홀딩스"
+    },
+    {
+      "rank": 10,
+      "name": "셀트리온",
+      "ticker": "068270",
+      "price": "178,900원",
+      "change": "+3.21%",
+      "volume": "560억",
+      "isUp": true,
+      "stockId": "59",
+      "canonicalName": "셀트리온"
+    },
+    {
+      "rank": 11,
+      "name": "SK텔레콤",
+      "ticker": "017670",
+      "price": "54,300원",
+      "change": "+0.67%",
+      "volume": "480억",
+      "isUp": true,
+      "stockId": "73",
+      "canonicalName": "SK텔레콤"
+    }
+  ],
+  "trading": [
+    {
+      "rank": 1,
+      "name": "삼성전자",
+      "ticker": "005930",
+      "price": "74,200원",
+      "change": "+0.45%",
+      "volume": "2.1천억",
+      "isUp": true,
+      "stockId": "1",
+      "canonicalName": "삼성전자"
+    },
+    {
+      "rank": 2,
+      "name": "LG에너지솔루션",
+      "ticker": "373220",
+      "price": "412,000원",
+      "change": "-1.45%",
+      "volume": "1.9천억",
+      "isUp": false,
+      "stockId": "5",
+      "canonicalName": "LG에너지솔루션"
+    },
+    {
+      "rank": 3,
+      "name": "NAVER",
+      "ticker": "035420",
+      "price": "178,000원",
+      "change": "+1.23%",
+      "volume": "1.7천억",
+      "isUp": true,
+      "stockId": "3",
+      "canonicalName": "NAVER"
+    },
+    {
+      "rank": 4,
+      "name": "SK하이닉스",
+      "ticker": "000660",
+      "price": "186,500원",
+      "change": "+2.67%",
+      "volume": "1.3천억",
+      "isUp": true,
+      "stockId": "2",
+      "canonicalName": "SK하이닉스"
+    },
+    {
+      "rank": 5,
+      "name": "현대차",
+      "ticker": "005380",
+      "price": "234,500원",
+      "change": "+0.78%",
+      "volume": "950억",
+      "isUp": true,
+      "stockId": "63",
+      "canonicalName": "현대차"
+    },
+    {
+      "rank": 6,
+      "name": "카카오",
+      "ticker": "035720",
+      "price": "45,600원",
+      "change": "-0.34%",
+      "volume": "890억",
+      "isUp": false,
+      "stockId": "4",
+      "canonicalName": "카카오"
+    },
+    {
+      "rank": 7,
+      "name": "기아",
+      "ticker": "000270",
+      "price": "112,300원",
+      "change": "+1.89%",
+      "volume": "850억",
+      "isUp": true,
+      "stockId": "64",
+      "canonicalName": "기아"
+    },
+    {
+      "rank": 8,
+      "name": "KB금융",
+      "ticker": "105560",
+      "price": "67,800원",
+      "change": "+1.34%",
+      "volume": "820억",
+      "isUp": true,
+      "stockId": "68",
+      "canonicalName": "KB금융"
+    },
+    {
+      "rank": 9,
+      "name": "POSCO홀딩스",
+      "ticker": "005490",
+      "price": "389,500원",
+      "change": "-0.56%",
+      "volume": "760억",
+      "isUp": false,
+      "stockId": "67",
+      "canonicalName": "포스코홀딩스"
+    },
+    {
+      "rank": 10,
+      "name": "셀트리온",
+      "ticker": "068270",
+      "price": "178,900원",
+      "change": "+3.21%",
+      "volume": "730억",
+      "isUp": true,
+      "stockId": "59",
+      "canonicalName": "셀트리온"
+    }
+
+  ],
+  "surge": [
+    {
+      "rank": 1,
+      "name": "셀트리온",
+      "ticker": "068270",
+      "price": "178,900원",
+      "change": "+8.45%",
+      "volume": "890억",
+      "isUp": true,
+      "stockId": "59",
+      "canonicalName": "셀트리온"
+    },
+    {
+      "rank": 2,
+      "name": "기아",
+      "ticker": "000270",
+      "price": "112,300원",
+      "change": "+4.89%",
+      "volume": "580억",
+      "isUp": true,
+      "stockId": "64",
+      "canonicalName": "기아"
+    },
+    {
+      "rank": 3,
+      "name": "SK하이닉스",
+      "ticker": "000660",
+      "price": "186,500원",
+      "change": "+4.67%",
+      "volume": "650억",
+      "isUp": true,
+      "stockId": "2",
+      "canonicalName": "SK하이닉스"
+    },
+    {
+      "rank": 4,
+      "name": "현대차",
+      "ticker": "005380",
+      "price": "234,500원",
+      "change": "+3.92%",
+      "volume": "430억",
+      "isUp": true,
+      "stockId": "63",
+      "canonicalName": "현대차"
+    },
+    {
+      "rank": 5,
+      "name": "NAVER",
+      "ticker": "035420",
+      "price": "178,000원",
+      "change": "+3.11%",
+      "volume": "580억",
+      "isUp": true,
+      "stockId": "3",
+      "canonicalName": "NAVER"
+    },
+    {
+      "rank": 6,
+      "name": "KB금융",
+      "ticker": "105560",
+      "price": "67,800원",
+      "change": "+2.87%",
+      "volume": "460억",
+      "isUp": true,
+      "stockId": "68",
+      "canonicalName": "KB금융"
+    },
+    {
+      "rank": 7,
+      "name": "POSCO홀딩스",
+      "ticker": "005490",
+      "price": "389,500원",
+      "change": "+1.76%",
+      "volume": "480억",
+      "isUp": true,
+      "stockId": "67",
+      "canonicalName": "포스코홀딩스"
+    },
+    {
+      "rank": 8,
+      "name": "SK텔레콤",
+      "ticker": "017670",
+      "price": "54,300원",
+      "change": "+1.21%",
+      "volume": "270억",
+      "isUp": true,
+      "stockId": "73",
+      "canonicalName": "SK텔레콤"
+    },
+    {
+      "rank": 9,
+      "name": "삼성전자",
+      "ticker": "005930",
+      "price": "74,200원",
+      "change": "+1.12%",
+      "volume": "610억",
+      "isUp": true,
+      "stockId": "1",
+      "canonicalName": "삼성전자"
+    }
+  ],
+  "drop": [
+    {
+      "rank": 1,
+      "name": "LG에너지솔루션",
+      "ticker": "373220",
+      "price": "412,000원",
+      "change": "-5.45%",
+      "volume": "720억",
+      "isUp": false,
+      "stockId": "5",
+      "canonicalName": "LG에너지솔루션"
+    },
+    {
+      "rank": 2,
+      "name": "POSCO홀딩스",
+      "ticker": "005490",
+      "price": "389,500원",
+      "change": "-4.56%",
+      "volume": "520억",
+      "isUp": false,
+      "stockId": "67",
+      "canonicalName": "포스코홀딩스"
+    },
+    {
+      "rank": 3,
+      "name": "KB금융",
+      "ticker": "105560",
+      "price": "67,800원",
+      "change": "-3.89%",
+      "volume": "460억",
+      "isUp": false,
+      "stockId": "68",
+      "canonicalName": "KB금융"
+    },
+    {
+      "rank": 4,
+      "name": "삼성전자",
+      "ticker": "005930",
+      "price": "74,200원",
+      "change": "-2.23%",
+      "volume": "720억",
+      "isUp": false,
+      "stockId": "1",
+      "canonicalName": "삼성전자"
+    },
+    {
+      "rank": 5,
+      "name": "카카오",
+      "ticker": "035720",
+      "price": "45,600원",
+      "change": "-1.87%",
+      "volume": "520억",
+      "isUp": false,
+      "stockId": "4",
+      "canonicalName": "카카오"
+    },
+    {
+      "rank": 6,
+      "name": "SK텔레콤",
+      "ticker": "017670",
+      "price": "54,300원",
+      "change": "-1.45%",
+      "volume": "380억",
+      "isUp": false,
+      "stockId": "73",
+      "canonicalName": "SK텔레콤"
+    },
+    {
+      "rank": 7,
+      "name": "KT",
+      "ticker": "030200",
+      "price": "38,900원",
+      "change": "-1.23%",
+      "volume": "320억",
+      "isUp": false,
+      "stockId": "101",
+      "canonicalName": "KT"
+    },
+    {
+      "rank": 8,
+      "name": "롯데케미칼",
+      "ticker": "011170",
+      "price": "145,600원",
+      "change": "-0.98%",
+      "volume": "280억",
+      "isUp": false,
+      "stockId": "102",
+      "canonicalName": "롯데케미칼"
+    },
+    {
+      "rank": 9,
+      "name": "SK이노베이션",
+      "ticker": "096770",
+      "price": "123,400원",
+      "change": "-0.78%",
+      "volume": "250억",
+      "isUp": false,
+      "stockId": "72",
+      "canonicalName": "SK이노베이션"
+    },
+    {
+      "rank": 10,
+      "name": "한화솔루션",
+      "ticker": "009830",
+      "price": "34,500원",
+      "change": "-0.56%",
+      "volume": "220억",
+      "isUp": false,
+      "stockId": "103",
+      "canonicalName": "한화솔루션"
+    },
+    {
+      "rank": 11,
+      "name": "현대차",
+      "ticker": "005380",
+      "price": "234,500원",
+      "change": "-0.34%",
+      "volume": "380억",
+      "isUp": false,
+      "stockId": "63",
+      "canonicalName": "현대차"
+    },
+    {
+      "rank": 12,
+      "name": "NAVER",
+      "ticker": "035420",
+      "price": "178,000원",
+      "change": "-0.29%",
+      "volume": "450억",
+      "isUp": false,
+      "stockId": "3",
+      "canonicalName": "NAVER"
+    },
+    {
+      "rank": 13,
+      "name": "기아",
+      "ticker": "000270",
+      "price": "112,300원",
+      "change": "-0.21%",
+      "volume": "360억",
+      "isUp": false,
+      "stockId": "64",
+      "canonicalName": "기아"
+    },
+    {
+      "rank": 14,
+      "name": "셀트리온",
+      "ticker": "068270",
+      "price": "178,900원",
+      "change": "-0.17%",
+      "volume": "310억",
+      "isUp": false,
+      "stockId": "59",
+      "canonicalName": "셀트리온"
+    },
+    {
+      "rank": 15,
+      "name": "KB금융",
+      "ticker": "105560",
+      "price": "67,800원",
+      "change": "-0.12%",
+      "volume": "290억",
+      "isUp": false,
+      "stockId": "68",
+      "canonicalName": "KB금융"
+    },
+    {
+      "rank": 16,
+      "name": "삼성전자",
+      "ticker": "005930",
+      "price": "74,200원",
+      "change": "-0.08%",
+      "volume": "270억",
+      "isUp": false,
+      "stockId": "1",
+      "canonicalName": "삼성전자"
+    },
+    {
+      "rank": 17,
+      "name": "카카오",
+      "ticker": "035720",
+      "price": "45,600원",
+      "change": "-0.05%",
+      "volume": "250억",
+      "isUp": false,
+      "stockId": "4",
+      "canonicalName": "카카오"
+    },
+    {
+      "rank": 18,
+      "name": "SK텔레콤",
+      "ticker": "017670",
+      "price": "54,300원",
+      "change": "-0.03%",
+      "volume": "230억",
+      "isUp": false,
+      "stockId": "73",
+      "canonicalName": "SK텔레콤"
+    }
+  ],
+  "personal": [
+    {
+      "rank": 1,
+      "name": "SK하이닉스",
+      "ticker": "000660",
+      "price": "186,500원",
+      "change": "+2.67%",
+      "volume": "720억",
+      "isUp": true,
+      "type": "domestic",
+      "stockId": "2",
+      "canonicalName": "SK하이닉스"
+    },
+    {
+      "rank": 2,
+      "name": "기아",
+      "ticker": "000270",
+      "price": "112,300원",
+      "change": "+1.89%",
+      "volume": "620억",
+      "isUp": true,
+      "type": "domestic",
+      "stockId": "64",
+      "canonicalName": "기아"
+    },
+    {
+      "rank": 3,
+      "name": "KB금융",
+      "ticker": "105560",
+      "price": "67,800원",
+      "change": "+1.34%",
+      "volume": "510억",
+      "isUp": true,
+      "type": "domestic",
+      "stockId": "68",
+      "canonicalName": "KB금융"
+    },
+    {
+      "rank": 4,
+      "name": "NAVER",
+      "ticker": "035420",
+      "price": "178,000원",
+      "change": "+1.23%",
+      "volume": "480억",
+      "isUp": true,
+      "type": "domestic",
+      "stockId": "3",
+      "canonicalName": "NAVER"
+    },
+    {
+      "rank": 5,
+      "name": "현대차",
+      "ticker": "005380",
+      "price": "234,500원",
+      "change": "+0.92%",
+      "volume": "450억",
+      "isUp": true,
+      "type": "domestic",
+      "stockId": "63",
+      "canonicalName": "현대차"
+    },
+    {
+      "rank": 6,
+      "name": "삼성전자",
+      "ticker": "005930",
+      "price": "74,200원",
+      "change": "+0.45%",
+      "volume": "820억",
+      "isUp": true,
+      "type": "domestic",
+      "stockId": "1",
+      "canonicalName": "삼성전자"
+    },
+    {
+      "rank": 7,
+      "name": "셀트리온",
+      "ticker": "068270",
+      "price": "178,900원",
+      "change": "+3.21%",
+      "volume": "510억",
+      "isUp": true,
+      "type": "domestic",
+      "stockId": "59",
+      "canonicalName": "셀트리온"
+    },
+    {
+      "rank": 8,
+      "name": "카카오",
+      "ticker": "035720",
+      "price": "45,600원",
+      "change": "-0.34%",
+      "volume": "490억",
+      "isUp": false,
+      "type": "domestic",
+      "stockId": "4",
+      "canonicalName": "카카오"
+    },
+    {
+      "rank": 9,
+      "name": "POSCO홀딩스",
+      "ticker": "005490",
+      "price": "389,500원",
+      "change": "-0.56%",
+      "volume": "460억",
+      "isUp": false,
+      "type": "domestic",
+      "stockId": "67",
+      "canonicalName": "포스코홀딩스"
+    },
+    {
+      "rank": 10,
+      "name": "LG에너지솔루션",
+      "ticker": "373220",
+      "price": "412,000원",
+      "change": "-1.45%",
+      "volume": "720억",
+      "isUp": false,
+      "type": "domestic",
+      "stockId": "5",
+      "canonicalName": "LG에너지솔루션"
+    }
+  ]
+}
