@@ -14,8 +14,10 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -262,7 +264,8 @@ public final class KisClient {
     public List<Map<String, Object>> fetchDomesticMinuteChart(String stockCode, String timeframe, int points) {
         int stepMinutes = Integer.parseInt(timeframe.replaceAll("\\D", "").isBlank() ? "1" : timeframe.replaceAll("\\D", ""));
         ZonedDateTime now = TimeUtil.nowSeoul();
-        String key = "minute:" + stockCode + ":" + timeframe + ":" + points + ":" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+        ZonedDateTime lookupAt = resolveMinuteChartLookupTime(now);
+        String key = "minute:" + stockCode + ":" + timeframe + ":" + points + ":" + lookupAt.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
         Object cached = getCached(chartCache, key);
         if (cached instanceof List<?> list) {
             return toMapList(Json.deepCopy(list));
@@ -275,8 +278,8 @@ public final class KisClient {
                 Map.of(
                         "FID_COND_MRKT_DIV_CODE", "J",
                         "FID_INPUT_ISCD", stockCode,
-                        "FID_INPUT_HOUR_1", now.format(DateTimeFormatter.ofPattern("HHmmss")),
-                        "FID_INPUT_DATE_1", now.format(DateTimeFormatter.BASIC_ISO_DATE),
+                        "FID_INPUT_HOUR_1", lookupAt.format(DateTimeFormatter.ofPattern("HHmmss")),
+                        "FID_INPUT_DATE_1", lookupAt.toLocalDate().format(DateTimeFormatter.BASIC_ISO_DATE),
                         "FID_PW_DATA_INCU_YN", "Y",
                         "FID_FAKE_TICK_INCU_YN", ""
                 ),
@@ -316,6 +319,38 @@ public final class KisClient {
         }
         setCached(chartCache, key, aggregated, CHART_CACHE_SECONDS);
         return aggregated;
+    }
+
+    private ZonedDateTime resolveMinuteChartLookupTime(ZonedDateTime now) {
+        LocalTime regularOpen = LocalTime.of(9, 0);
+        LocalTime regularClose = LocalTime.of(15, 30);
+        if (isWeekend(now.toLocalDate())) {
+            return previousBusinessDay(now.toLocalDate())
+                    .atTime(regularClose)
+                    .atZone(TimeUtil.SEOUL);
+        }
+        if (now.toLocalTime().isBefore(regularOpen)) {
+            return previousBusinessDay(now.toLocalDate())
+                    .atTime(regularClose)
+                    .atZone(TimeUtil.SEOUL);
+        }
+        if (now.toLocalTime().isAfter(regularClose)) {
+            return now.with(regularClose);
+        }
+        return now;
+    }
+
+    private LocalDate previousBusinessDay(LocalDate date) {
+        LocalDate cursor = date.minusDays(1);
+        while (isWeekend(cursor)) {
+            cursor = cursor.minusDays(1);
+        }
+        return cursor;
+    }
+
+    private boolean isWeekend(LocalDate date) {
+        DayOfWeek day = date.getDayOfWeek();
+        return day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY;
     }
 
     public Map<String, Object> fetchMarketStatus(LocalDate targetDate) {

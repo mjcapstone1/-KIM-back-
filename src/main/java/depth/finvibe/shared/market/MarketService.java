@@ -5,6 +5,8 @@ import depth.finvibe.shared.json.Json;
 import depth.finvibe.shared.util.FinvibeUtils;
 import depth.finvibe.shared.util.Maps;
 import depth.finvibe.shared.util.TimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -12,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 public final class MarketService {
+    private static final Logger log = LoggerFactory.getLogger(MarketService.class);
+
     private final AppConfig config;
     private final KisClient kisClient;
     private final StockPriceStore stockPriceStore;
@@ -134,7 +138,11 @@ public final class MarketService {
                         return candles;
                     }
                 }
-            } catch (Exception ignored) {
+                log.warn("KIS candle response was empty. stockId={}, code={}, timeframe={}, points={}",
+                        Maps.str(stock, "id"), Maps.str(stock, "code"), timeframe, resolvedPoints);
+            } catch (Exception e) {
+                log.warn("KIS candle fetch failed. stockId={}, code={}, timeframe={}, points={}",
+                        Maps.str(stock, "id"), Maps.str(stock, "code"), timeframe, resolvedPoints, e);
             }
         }
         return List.of();

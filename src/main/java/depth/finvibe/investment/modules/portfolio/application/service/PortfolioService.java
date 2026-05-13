@@ -143,6 +143,9 @@ public class PortfolioService {
 
         List<Map<String, Object>> rows = new ArrayList<>();
         for (AssetEntity asset : assets) {
+            if (asset.getQuantity().doubleValue() <= 0) {
+                continue;
+            }
             StockEntity stock = stockQueryService.requireStockEntity(asset.getStockId());
             Map<String, Object> snapshot = stockQueryService.stockSnapshot(stock);
             double currentPrice = Maps.doubleVal(snapshot, "price");
@@ -187,6 +190,9 @@ public class PortfolioService {
     public List<Map<String, Object>> listTopHoldingStocks(String userId, int limit) {
         List<Map<String, Object>> rows = new ArrayList<>();
         for (AssetEntity asset : assetRepository.findAllByUserIdOrderByCreatedAtAsc(userId)) {
+            if (asset.getQuantity().doubleValue() <= 0) {
+                continue;
+            }
             StockEntity stock = stockQueryService.requireStockEntity(asset.getStockId());
             double currentPrice = stock.getLastPrice() == null
                     ? asset.getCurrentPriceKrw()
@@ -223,7 +229,7 @@ public class PortfolioService {
             long realizedProfit = 0L;
             for (String stockId : stockIds) {
                 AssetEntity asset = assetRepository.findByUserIdAndStockId(userId, stockId).orElse(null);
-                if (asset == null) {
+                if (asset == null || asset.getQuantity().doubleValue() <= 0) {
                     continue;
                 }
                 totalCurrentValue += currentValue(asset);
@@ -249,6 +255,9 @@ public class PortfolioService {
         double stockAmount = 0.0;
         long investedAmount = 0L;
         for (AssetEntity asset : assetRepository.findAllByUserIdOrderByCreatedAtAsc(userId)) {
+            if (asset.getQuantity().doubleValue() <= 0) {
+                continue;
+            }
             stockAmount += currentValue(asset);
             investedAmount += asset.getInvestedAmountKrw();
         }
@@ -303,7 +312,7 @@ public class PortfolioService {
         long totalPurchaseAmount = 0L;
         for (String stockId : stockIds) {
             AssetEntity asset = assetRepository.findByUserIdAndStockId(entity.getUserId(), stockId).orElse(null);
-            if (asset == null) {
+            if (asset == null || asset.getQuantity().doubleValue() <= 0) {
                 continue;
             }
             totalCurrentValue += currentValue(asset);
@@ -361,6 +370,9 @@ public class PortfolioService {
     }
 
     private double currentValue(AssetEntity asset) {
+        if (asset.getQuantity().doubleValue() <= 0) {
+            return 0.0;
+        }
         StockEntity stock = stockQueryService.requireStockEntity(asset.getStockId());
         Map<String, Object> snapshot = stockQueryService.stockSnapshot(stock);
         return Maps.doubleVal(snapshot, "price") * asset.getQuantity().doubleValue();

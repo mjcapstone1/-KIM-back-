@@ -41,6 +41,16 @@ finvibe:
     app-key: ${KIS_APP_KEY:}
     app-secret: ${KIS_APP_SECRET:}
     timeout-ms: ${KIS_TIMEOUT_MS:5000}
+  market:
+    bootstrap-prices:
+      enabled: ${FINVIBE_MARKET_BOOTSTRAP_PRICES_ENABLED:true}
+      run-on-startup: ${FINVIBE_MARKET_BOOTSTRAP_PRICES_RUN_ON_STARTUP:true}
+      schedule-enabled: ${FINVIBE_MARKET_BOOTSTRAP_PRICES_SCHEDULE_ENABLED:true}
+      page-size: ${FINVIBE_MARKET_BOOTSTRAP_PRICES_PAGE_SIZE:50}
+      max-pages-per-run: ${FINVIBE_MARKET_BOOTSTRAP_PRICES_MAX_PAGES_PER_RUN:4}
+      request-delay-ms: ${FINVIBE_MARKET_BOOTSTRAP_PRICES_REQUEST_DELAY_MS:150}
+      refresh-zero-only: ${FINVIBE_MARKET_BOOTSTRAP_PRICES_REFRESH_ZERO_ONLY:true}
+      stale-after-minutes: ${FINVIBE_MARKET_BOOTSTRAP_PRICES_STALE_AFTER_MINUTES:180}
   outbox:
     batch-size: ${OUTBOX_BATCH_SIZE:100}
     poll-delay-ms: ${OUTBOX_POLL_DELAY_MS:500}

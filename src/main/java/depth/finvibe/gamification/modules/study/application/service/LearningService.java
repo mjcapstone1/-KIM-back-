@@ -18,6 +18,7 @@ import depth.finvibe.shared.persistence.learning.UserSquadMembershipRepository;
 import depth.finvibe.shared.persistence.market.FavoriteStockRepository;
 import depth.finvibe.shared.persistence.user.UserEntity;
 import depth.finvibe.shared.persistence.user.UserRepository;
+import depth.finvibe.shared.ranking.UserProfitSnapshotDailyService;
 import depth.finvibe.shared.state.AppState;
 import depth.finvibe.shared.util.FinvibeUtils;
 import depth.finvibe.shared.util.Maps;
@@ -47,6 +48,7 @@ public class LearningService {
     private final UserSquadMembershipRepository squadMembershipRepository;
     private final FavoriteStockRepository favoriteStockRepository;
     private final UserRepository userRepository;
+    private final UserProfitSnapshotDailyService profitSnapshotDailyService;
     private final AppState appState;
 
     public LearningService(
@@ -57,6 +59,7 @@ public class LearningService {
             UserSquadMembershipRepository squadMembershipRepository,
             FavoriteStockRepository favoriteStockRepository,
             UserRepository userRepository,
+            UserProfitSnapshotDailyService profitSnapshotDailyService,
             AppState appState
     ) {
         this.profileRepository = profileRepository;
@@ -66,6 +69,7 @@ public class LearningService {
         this.squadMembershipRepository = squadMembershipRepository;
         this.favoriteStockRepository = favoriteStockRepository;
         this.userRepository = userRepository;
+        this.profitSnapshotDailyService = profitSnapshotDailyService;
         this.appState = appState;
     }
 
@@ -310,16 +314,25 @@ public class LearningService {
     @Transactional
     public Map<String, Object> squadContributionMe(String userId) {
         ensureLearningInitialized(userId);
-        UserLearningProfileEntity profile = requireProfile(userId);
         Optional<UserSquadMembershipEntity> membership = squadMembershipRepository.findById(userId);
         if (membership.isEmpty()) {
-            return Maps.of("squadId", null, "squadName", null, "contributionXp", profile.getTotalXp());
+            return Maps.of(
+                    "joined", false,
+                    "squadId", null,
+                    "squadName", null,
+                    "items", toContributionRows(profitSnapshotDailyService.rankUsersByStockReturn(List.of()))
+            );
         }
         Map<String, Object> squad = requireSquadDefinition(membership.get().getSquadId());
+        List<String> memberUserIds = squadMembershipRepository.findAllBySquadId(membership.get().getSquadId())
+                .stream()
+                .map(UserSquadMembershipEntity::getUserId)
+                .toList();
         return Maps.of(
+                "joined", true,
                 "squadId", membership.get().getSquadId(),
                 "squadName", Maps.str(squad, "name"),
-                "contributionXp", profile.getTotalXp()
+                "items", toContributionRows(profitSnapshotDailyService.rankUsersByStockReturn(memberUserIds))
         );
     }
 
@@ -419,49 +432,34 @@ public class LearningService {
 
     @Transactional
     public List<Map<String, Object>> xpSquadsRanking() {
-        Map<String, Integer> xpBySquadId = new LinkedHashMap<>();
         Map<String, Map<String, Object>> definitionsById = squadDefinitionsById();
-        for (String squadId : definitionsById.keySet()) {
-            xpBySquadId.put(squadId, 0);
-        }
+        Map<String, UserSquadMembershipEntity> membershipByUserId = squadMembershipRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(UserSquadMembershipEntity::getUserId, membership -> membership, (first, second) -> first));
 
-        Map<String, String> squadIdByName = new LinkedHashMap<>();
-        for (Map.Entry<String, Map<String, Object>> entry : definitionsById.entrySet()) {
-            squadIdByName.put(Maps.str(entry.getValue(), "name"), entry.getKey());
-        }
-        for (Map<String, Object> legacy : appState.xpSquadRanking()) {
-            String squadId = squadIdByName.get(Maps.str(legacy, "squadName"));
-            if (squadId != null) {
-                xpBySquadId.put(squadId, xpBySquadId.getOrDefault(squadId, 0) + Maps.intVal(legacy, "xp"));
-            }
-        }
-
-        List<UserSquadMembershipEntity> memberships = squadMembershipRepository.findAll();
-        Map<String, UserLearningProfileEntity> profileByUserId = profileRepository.findAllById(
-                        memberships.stream().map(UserSquadMembershipEntity::getUserId).toList()
-                ).stream()
-                .collect(Collectors.toMap(UserLearningProfileEntity::getUserId, profile -> profile));
-        for (UserSquadMembershipEntity membership : memberships) {
-            UserLearningProfileEntity profile = profileByUserId.get(membership.getUserId());
-            if (profile != null) {
-                xpBySquadId.put(membership.getSquadId(), xpBySquadId.getOrDefault(membership.getSquadId(), 0) + profile.getTotalXp());
-            }
-        }
-
-        List<Map.Entry<String, Integer>> sorted = xpBySquadId.entrySet().stream()
-                .sorted((left, right) -> Integer.compare(right.getValue(), left.getValue()))
-                .toList();
         List<Map<String, Object>> rows = new ArrayList<>();
-        for (int i = 0; i < sorted.size(); i++) {
-            Map.Entry<String, Integer> entry = sorted.get(i);
-            Map<String, Object> squad = definitionsById.get(entry.getKey());
-            rows.add(Maps.of(
-                    "rank", i + 1,
-                    "squadId", entry.getKey(),
-                    "squadName", squad == null ? entry.getKey() : Maps.str(squad, "name"),
-                    "xp", entry.getValue(),
-                    "members", squadMembershipRepository.countBySquadId(entry.getKey()) + (squad == null ? 0 : Maps.intVal(squad, "members"))
-            ));
+        for (Map<String, Object> ranking : profitSnapshotDailyService.rankUsersByStockReturn(List.of())) {
+            String rankedUserId = Maps.str(ranking, "userId");
+            UserSquadMembershipEntity membership = membershipByUserId.get(rankedUserId);
+            String joinedSquadId = membership == null ? null : membership.getSquadId();
+            Map<String, Object> squad = joinedSquadId == null ? null : definitionsById.get(joinedSquadId);
+            double returnRate = Maps.doubleVal(ranking, "totalReturnRate");
+
+            Map<String, Object> row = new LinkedHashMap<>(ranking);
+            row.put("squadId", rankedUserId);
+            row.put("squadName", Maps.str(ranking, "nickname", "Unknown"));
+            row.put("joinedSquadId", joinedSquadId);
+            row.put("joinedSquadName", squad == null ? null : Maps.str(squad, "name"));
+            row.put("groupReturnRate", returnRate);
+            row.put("weeklyXpChangeRate", returnRate);
+            row.put("rankingChange", 0);
+            row.put("scoreType", "stockReturnRate");
+            row.put("score", returnRate);
+            row.put("xp", Math.round(returnRate * 100.0) / 100.0);
+            row.put("weeklyXp", Math.round(returnRate * 100.0) / 100.0);
+            row.put("totalXp", Math.round(returnRate * 100.0) / 100.0);
+            row.put("members", joinedSquadId == null ? 0 : squadMembershipRepository.countBySquadId(joinedSquadId));
+            rows.add(row);
         }
         return rows;
     }
@@ -583,6 +581,22 @@ public class LearningService {
         row.put("members", Maps.intVal(row, "members") + squadMembershipRepository.countBySquadId(squadId));
         row.put("joined", squadId.equals(joinedSquadId));
         return row;
+    }
+
+    private List<Map<String, Object>> toContributionRows(List<Map<String, Object>> returnRankings) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (Map<String, Object> ranking : returnRankings) {
+            double returnRate = Maps.doubleVal(ranking, "totalReturnRate");
+            Map<String, Object> row = new LinkedHashMap<>(ranking);
+            row.put("nickname", Maps.str(ranking, "nickname", "Unknown"));
+            row.put("ranking", Maps.intVal(ranking, "rank"));
+            row.put("weeklyContributionXp", Math.round(returnRate * 100.0) / 100.0);
+            row.put("returnRate", returnRate);
+            row.put("stockReturnRate", returnRate);
+            row.put("scoreType", "stockReturnRate");
+            rows.add(row);
+        }
+        return rows;
     }
 
     private Map<String, Object> requireSquadDefinition(String squadId) {

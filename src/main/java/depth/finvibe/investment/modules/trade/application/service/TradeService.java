@@ -321,13 +321,17 @@ public class TradeService {
         long realizedPnl = totalKrw - costBasis;
 
         BigDecimal newQty = asset.getQuantity().subtract(quantity);
+        asset.setRealizedPnlKrw(asset.getRealizedPnlKrw() + realizedPnl);
+        asset.setCurrentPriceKrw(stockQueryService.resolvePriceKrw(stock, orderPrice.doubleValue()));
         if (newQty.compareTo(BigDecimal.ZERO) == 0) {
-            assetRepository.delete(asset);
+            asset.setQuantity(BigDecimal.ZERO.setScale(8, RoundingMode.HALF_UP));
+            asset.setInvestedAmountKrw(0L);
+            asset.setAvgBuyPriceKrw(0L);
+            asset.setFolderId(null);
+            assetRepository.save(asset);
         } else {
             asset.setQuantity(newQty);
             asset.setInvestedAmountKrw(Math.max(0L, asset.getInvestedAmountKrw() - costBasis));
-            asset.setCurrentPriceKrw(stockQueryService.resolvePriceKrw(stock, orderPrice.doubleValue()));
-            asset.setRealizedPnlKrw(asset.getRealizedPnlKrw() + realizedPnl);
             assetRepository.save(asset);
         }
 
