@@ -49,6 +49,21 @@ public class AppConfig {
     @Value("${finvibe.kis.timeout-ms:5000}")
     private int kisTimeoutMs;
 
+    @Value("${finvibe.ai.gemini.enabled:false}")
+    private boolean geminiEnabled;
+
+    @Value("${finvibe.ai.gemini.base-url:https://generativelanguage.googleapis.com}")
+    private String geminiBaseUrl;
+
+    @Value("${finvibe.ai.gemini.api-key:}")
+    private String geminiApiKey;
+
+    @Value("${finvibe.ai.gemini.model:gemini-2.5-flash}")
+    private String geminiModel;
+
+    @Value("${finvibe.ai.gemini.timeout-ms:15000}")
+    private int geminiTimeoutMs;
+
     @Value("${finvibe.data-dir:./runtime}")
     private String dataDir;
 
@@ -107,6 +122,29 @@ public class AppConfig {
 
     public int kisTimeoutMs() {
         return kisTimeoutMs;
+    }
+
+    public boolean geminiEnabled() {
+        return geminiEnabled && geminiApiKey() != null && !geminiApiKey().isBlank();
+    }
+
+    public String geminiBaseUrl() {
+        return geminiBaseUrl == null || geminiBaseUrl.isBlank()
+                ? "https://generativelanguage.googleapis.com"
+                : geminiBaseUrl.replaceAll("/+$", "");
+    }
+
+    public String geminiApiKey() {
+        return geminiApiKey == null ? "" : geminiApiKey;
+    }
+
+    public String geminiModel() {
+        String model = geminiModel == null || geminiModel.isBlank() ? "gemini-2.5-flash" : geminiModel.trim();
+        return model.startsWith("models/") ? model.substring("models/".length()) : model;
+    }
+
+    public int geminiTimeoutMs() {
+        return geminiTimeoutMs;
     }
 
     public Path dataDir() {

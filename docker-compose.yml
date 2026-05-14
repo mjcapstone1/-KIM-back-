@@ -28,6 +28,11 @@ services:
       KIS_APP_KEY: ${KIS_APP_KEY:-}
       KIS_APP_SECRET: ${KIS_APP_SECRET:-}
       KIS_TIMEOUT_MS: ${KIS_TIMEOUT_MS:-5000}
+      GEMINI_ENABLED: ${GEMINI_ENABLED:-false}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      GEMINI_TIMEOUT_MS: ${GEMINI_TIMEOUT_MS:-15000}
     ports:
       - "${SERVER_PORT:-8080}:8080"
     volumes:
