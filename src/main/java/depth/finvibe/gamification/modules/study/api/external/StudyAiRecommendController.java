@@ -1,6 +1,6 @@
 package depth.finvibe.gamification.modules.study.api.external;
 
-import depth.finvibe.gamification.modules.study.application.service.GeminiTutorService;
+import depth.finvibe.gamification.modules.study.application.service.OpenRouterTutorService;
 import depth.finvibe.shared.security.AuthService;
 import depth.finvibe.shared.security.CurrentUser;
 import depth.finvibe.shared.state.AppState;
@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudyAiRecommendController {
     private final AppState state;
     private final AuthService authService;
-    private final GeminiTutorService geminiTutorService;
+    private final OpenRouterTutorService openRouterTutorService;
 
-    public StudyAiRecommendController(AppState state, AuthService authService, GeminiTutorService geminiTutorService) {
+    public StudyAiRecommendController(AppState state, AuthService authService, OpenRouterTutorService openRouterTutorService) {
         this.state = state;
         this.authService = authService;
-        this.geminiTutorService = geminiTutorService;
+        this.openRouterTutorService = openRouterTutorService;
     }
 
     @GetMapping("/api/v1/learning/keywords/recommended")
@@ -51,7 +51,7 @@ public class StudyAiRecommendController {
     public Object aiTutorChat(@RequestHeader(name = "Authorization", required = false) String authorization,
                               @RequestBody Map<String, Object> payload) {
         CurrentUser currentUser = authService.requireUser(authorization);
-        return geminiTutorService.answer(
+        return openRouterTutorService.answer(
                 currentUser.userId(),
                 Maps.str(payload, "message"),
                 Maps.str(payload, "investmentType"),

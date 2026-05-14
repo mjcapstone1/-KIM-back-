@@ -111,9 +111,10 @@ finvibe:
     enabled: ${KIS_ENABLED:false}
 
   ai:
-    gemini:
-      enabled: ${GEMINI_ENABLED:false}
-      base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
-      api-key: ${GEMINI_API_KEY:}
-      model: ${GEMINI_MODEL:gemini-2.5-flash}
-      timeout-ms: ${GEMINI_TIMEOUT_MS:15000}
+    openrouter:
+      enabled: ${OPENROUTER_ENABLED:false}
+      base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+      api-key: ${OPENROUTER_API_KEY:}
+      model: ${OPENROUTER_MODEL:nvidia/nemotron-3-super-120b-a12b:free}
+      timeout-ms: ${OPENROUTER_TIMEOUT_MS:20000}
+      site-url: ${OPENROUTER_SITE_URL:http://localhost:5173}

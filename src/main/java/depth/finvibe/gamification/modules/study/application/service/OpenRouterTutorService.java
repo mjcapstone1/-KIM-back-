@@ -18,46 +18,44 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GeminiTutorService {
+public class OpenRouterTutorService {
     private static final int MAX_MESSAGE_LENGTH = 1200;
     private static final int MAX_HISTORY_ITEMS = 10;
 
     private final AppConfig config;
     private final HttpClient client;
 
-    public GeminiTutorService(AppConfig config) {
+    public OpenRouterTutorService(AppConfig config) {
         this.config = config;
         this.client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(config.geminiTimeoutMs()))
+                .connectTimeout(Duration.ofMillis(config.openRouterTimeoutMs()))
                 .build();
     }
 
     public Map<String, Object> answer(String userId, String message, String investmentType, List<Map<String, Object>> history) {
         String trimmed = normalizeMessage(message);
-        if (!config.geminiEnabled()) {
-            throw new ApiException(503, "GEMINI_NOT_CONFIGURED", "Gemini API 키가 설정되어 있지 않습니다.");
+        if (!config.openRouterEnabled()) {
+            throw new ApiException(503, "OPENROUTER_NOT_CONFIGURED", "OpenRouter API 키가 설정되어 있지 않습니다.");
         }
 
         Map<String, Object> requestBody = Maps.of(
-                "systemInstruction", Maps.of("parts", List.of(Maps.of("text", systemPrompt(investmentType)))),
-                "contents", buildContents(history, trimmed),
-                "generationConfig", Maps.of(
-                        "temperature", 0.65,
-                        "topP", 0.9,
-                        "maxOutputTokens", 700
-                )
+                "model", config.openRouterModel(),
+                "messages", buildMessages(history, trimmed, investmentType),
+                "temperature", 0.65,
+                "max_tokens", 700,
+                "reasoning", Maps.of("enabled", true)
         );
 
-        Map<String, Object> payload = requestGemini(requestBody);
+        Map<String, Object> payload = requestOpenRouter(requestBody);
         String answer = extractText(payload);
         if (answer.isBlank()) {
-            throw new ApiException(502, "GEMINI_EMPTY_RESPONSE", "Gemini 응답이 비어 있습니다.");
+            throw new ApiException(502, "OPENROUTER_EMPTY_RESPONSE", "OpenRouter 응답이 비어 있습니다.");
         }
 
         return Maps.of(
                 "message", answer,
-                "provider", "gemini",
-                "model", config.geminiModel(),
+                "provider", "openrouter",
+                "model", config.openRouterModel(),
                 "userId", userId
         );
     }
@@ -73,8 +71,9 @@ public class GeminiTutorService {
         return trimmed;
     }
 
-    private List<Map<String, Object>> buildContents(List<Map<String, Object>> history, String latestMessage) {
-        List<Map<String, Object>> contents = new ArrayList<>();
+    private List<Map<String, Object>> buildMessages(List<Map<String, Object>> history, String latestMessage, String investmentType) {
+        List<Map<String, Object>> messages = new ArrayList<>();
+        messages.add(message("system", systemPrompt(investmentType)));
         if (history != null) {
             int start = Math.max(0, history.size() - MAX_HISTORY_ITEMS);
             for (int i = start; i < history.size(); i++) {
@@ -83,18 +82,18 @@ public class GeminiTutorService {
                 if (content.isBlank()) {
                     continue;
                 }
-                String role = "assistant".equalsIgnoreCase(Maps.str(item, "role")) ? "model" : "user";
-                contents.add(content(role, content));
+                String role = "assistant".equalsIgnoreCase(Maps.str(item, "role")) ? "assistant" : "user";
+                messages.add(message(role, content));
             }
         }
-        contents.add(content("user", latestMessage));
-        return contents;
+        messages.add(message("user", latestMessage));
+        return messages;
     }
 
-    private Map<String, Object> content(String role, String text) {
+    private Map<String, Object> message(String role, String content) {
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("role", role);
-        row.put("parts", List.of(Maps.of("text", text)));
+        row.put("content", content);
         return row;
     }
 
@@ -116,33 +115,32 @@ public class GeminiTutorService {
                 """.formatted(typeLabel);
     }
 
-    private Map<String, Object> requestGemini(Map<String, Object> body) {
-        String endpoint = config.geminiBaseUrl()
-                + "/v1beta/models/"
-                + config.geminiModel()
-                + ":generateContent";
-        HttpRequest request = HttpRequest.newBuilder(URI.create(endpoint))
-                .timeout(Duration.ofMillis(config.geminiTimeoutMs()))
+    private Map<String, Object> requestOpenRouter(Map<String, Object> body) {
+        HttpRequest request = HttpRequest.newBuilder(URI.create(config.openRouterBaseUrl() + "/chat/completions"))
+                .timeout(Duration.ofMillis(config.openRouterTimeoutMs()))
                 .header("Content-Type", "application/json; charset=utf-8")
-                .header("x-goog-api-key", config.geminiApiKey())
+                .header("Authorization", "Bearer " + config.openRouterApiKey())
+                .header("HTTP-Referer", config.openRouterSiteUrl())
+                .header("X-Title", "FinVibe AI Tutor")
                 .POST(HttpRequest.BodyPublishers.ofString(Json.stringify(body), StandardCharsets.UTF_8))
                 .build();
 
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new ApiException(502, "GEMINI_REQUEST_FAILED", geminiErrorMessage(response.statusCode(), response.body()));
+                throw new ApiException(502, "OPENROUTER_REQUEST_FAILED", openRouterErrorMessage(response.statusCode(), response.body()));
             }
             return Json.parseObject(response.body());
         } catch (IOException e) {
-            throw new ApiException(502, "GEMINI_NETWORK_ERROR", "Gemini 네트워크 요청 중 오류가 발생했습니다.");
+            throw new ApiException(502, "OPENROUTER_NETWORK_ERROR", "OpenRouter 네트워크 요청 중 오류가 발생했습니다.");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ApiException(502, "GEMINI_INTERRUPTED", "Gemini 요청이 중단되었습니다.");
+            throw new ApiException(502, "OPENROUTER_INTERRUPTED", "OpenRouter 요청이 중단되었습니다.");
         }
     }
 
-    private String geminiErrorMessage(int statusCode, String body) {
+    @SuppressWarnings("unchecked")
+    private String openRouterErrorMessage(int statusCode, String body) {
         String upstreamMessage = "";
         try {
             Map<String, Object> payload = Json.parseObject(body);
@@ -153,48 +151,29 @@ public class GeminiTutorService {
         } catch (Exception ignored) {
         }
 
-        if (statusCode == 403) {
-            return "Gemini API 접근 권한이 없습니다. API 키, Google AI Studio 프로젝트 권한, 결제/무료 티어 상태를 확인해 주세요.";
-        }
-        if (statusCode == 400) {
-            return "Gemini 요청 형식이 올바르지 않습니다." + (upstreamMessage.isBlank() ? "" : " " + upstreamMessage);
+        if (statusCode == 401 || statusCode == 403) {
+            return "OpenRouter API 키 권한이 없거나 사용할 수 없습니다.";
         }
         if (statusCode == 429) {
-            return "Gemini API 사용량 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.";
+            return "OpenRouter API 사용량 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.";
         }
-        return "Gemini 요청이 실패했습니다. status=" + statusCode + (upstreamMessage.isBlank() ? "" : " message=" + upstreamMessage);
+        return "OpenRouter 요청이 실패했습니다. status=" + statusCode + (upstreamMessage.isBlank() ? "" : " message=" + upstreamMessage);
     }
 
     @SuppressWarnings("unchecked")
     private String extractText(Map<String, Object> payload) {
-        Object candidatesValue = payload.get("candidates");
-        if (!(candidatesValue instanceof List<?> candidates) || candidates.isEmpty()) {
+        Object choicesValue = payload.get("choices");
+        if (!(choicesValue instanceof List<?> choices) || choices.isEmpty()) {
             return "";
         }
-        Object firstCandidate = candidates.get(0);
-        if (!(firstCandidate instanceof Map<?, ?> candidate)) {
+        Object firstChoice = choices.get(0);
+        if (!(firstChoice instanceof Map<?, ?> choice)) {
             return "";
         }
-        Object contentValue = ((Map<String, Object>) candidate).get("content");
-        if (!(contentValue instanceof Map<?, ?> content)) {
+        Object messageValue = ((Map<String, Object>) choice).get("message");
+        if (!(messageValue instanceof Map<?, ?> message)) {
             return "";
         }
-        Object partsValue = ((Map<String, Object>) content).get("parts");
-        if (!(partsValue instanceof List<?> parts)) {
-            return "";
-        }
-        StringBuilder builder = new StringBuilder();
-        for (Object partValue : parts) {
-            if (partValue instanceof Map<?, ?> part) {
-                String text = Maps.str((Map<String, Object>) part, "text", "");
-                if (!text.isBlank()) {
-                    if (!builder.isEmpty()) {
-                        builder.append("\n");
-                    }
-                    builder.append(text);
-                }
-            }
-        }
-        return builder.toString().trim();
+        return Maps.str((Map<String, Object>) message, "content", "").trim();
     }
 }

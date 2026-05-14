@@ -49,20 +49,23 @@ public class AppConfig {
     @Value("${finvibe.kis.timeout-ms:5000}")
     private int kisTimeoutMs;
 
-    @Value("${finvibe.ai.gemini.enabled:false}")
-    private boolean geminiEnabled;
+    @Value("${finvibe.ai.openrouter.enabled:false}")
+    private boolean openRouterEnabled;
 
-    @Value("${finvibe.ai.gemini.base-url:https://generativelanguage.googleapis.com}")
-    private String geminiBaseUrl;
+    @Value("${finvibe.ai.openrouter.base-url:https://openrouter.ai/api/v1}")
+    private String openRouterBaseUrl;
 
-    @Value("${finvibe.ai.gemini.api-key:}")
-    private String geminiApiKey;
+    @Value("${finvibe.ai.openrouter.api-key:}")
+    private String openRouterApiKey;
 
-    @Value("${finvibe.ai.gemini.model:gemini-2.5-flash}")
-    private String geminiModel;
+    @Value("${finvibe.ai.openrouter.model:nvidia/nemotron-3-super-120b-a12b:free}")
+    private String openRouterModel;
 
-    @Value("${finvibe.ai.gemini.timeout-ms:15000}")
-    private int geminiTimeoutMs;
+    @Value("${finvibe.ai.openrouter.timeout-ms:20000}")
+    private int openRouterTimeoutMs;
+
+    @Value("${finvibe.ai.openrouter.site-url:http://localhost:5173}")
+    private String openRouterSiteUrl;
 
     @Value("${finvibe.data-dir:./runtime}")
     private String dataDir;
@@ -124,27 +127,32 @@ public class AppConfig {
         return kisTimeoutMs;
     }
 
-    public boolean geminiEnabled() {
-        return geminiEnabled && geminiApiKey() != null && !geminiApiKey().isBlank();
+    public boolean openRouterEnabled() {
+        return openRouterEnabled && openRouterApiKey() != null && !openRouterApiKey().isBlank();
     }
 
-    public String geminiBaseUrl() {
-        return geminiBaseUrl == null || geminiBaseUrl.isBlank()
-                ? "https://generativelanguage.googleapis.com"
-                : geminiBaseUrl.replaceAll("/+$", "");
+    public String openRouterBaseUrl() {
+        return openRouterBaseUrl == null || openRouterBaseUrl.isBlank()
+                ? "https://openrouter.ai/api/v1"
+                : openRouterBaseUrl.replaceAll("/+$", "");
     }
 
-    public String geminiApiKey() {
-        return geminiApiKey == null ? "" : geminiApiKey;
+    public String openRouterApiKey() {
+        return openRouterApiKey == null ? "" : openRouterApiKey;
     }
 
-    public String geminiModel() {
-        String model = geminiModel == null || geminiModel.isBlank() ? "gemini-2.5-flash" : geminiModel.trim();
-        return model.startsWith("models/") ? model.substring("models/".length()) : model;
+    public String openRouterModel() {
+        return openRouterModel == null || openRouterModel.isBlank()
+                ? "nvidia/nemotron-3-super-120b-a12b:free"
+                : openRouterModel.trim();
     }
 
-    public int geminiTimeoutMs() {
-        return geminiTimeoutMs;
+    public int openRouterTimeoutMs() {
+        return openRouterTimeoutMs;
+    }
+
+    public String openRouterSiteUrl() {
+        return openRouterSiteUrl == null || openRouterSiteUrl.isBlank() ? "http://localhost:5173" : openRouterSiteUrl;
     }
 
     public Path dataDir() {
