@@ -3,6 +3,7 @@ package depth.finvibe.investment.modules.trade.application.service;
 import depth.finvibe.shared.persistence.trade.TradeOrderRepository;
 import depth.finvibe.shared.persistence.trade.TradeOrderEntity;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ public class PendingOrderExecutionScheduler {
 
     private final TradeOrderRepository tradeOrderRepository;
     private final TradeService tradeService;
+    private final AtomicInteger nextPageCursor = new AtomicInteger(0);
 
     @Value("${finvibe.trade.pending-orders.enabled:true}")
     private boolean enabled;
@@ -35,7 +37,17 @@ public class PendingOrderExecutionScheduler {
         }
 
         int limit = Math.max(1, Math.min(maxPerRun, 500));
-        List<TradeOrderEntity> orders = tradeOrderRepository.findAllByOrderStatusOrderByAcceptedAtAscCreatedAtAscOrderIdAsc("pending", PageRequest.of(0, limit));
+        long pendingCount = tradeOrderRepository.countByOrderStatus("pending");
+        if (pendingCount <= 0) {
+            return;
+        }
+        int totalPages = Math.max(1, (int) Math.ceil((double) pendingCount / limit));
+        int page = Math.floorMod(nextPageCursor.getAndUpdate(current -> current + 1), totalPages);
+        List<TradeOrderEntity> orders = tradeOrderRepository.findAllByOrderStatusOrderByAcceptedAtAscCreatedAtAscOrderIdAsc("pending", PageRequest.of(page, limit));
+        if (orders.isEmpty() && page > 0) {
+            nextPageCursor.set(1);
+            orders = tradeOrderRepository.findAllByOrderStatusOrderByAcceptedAtAscCreatedAtAscOrderIdAsc("pending", PageRequest.of(0, limit));
+        }
         if (orders.isEmpty()) {
             return;
         }

@@ -211,6 +211,7 @@ public class MarketController {
                     "changeRate", Maps.doubleVal(detail, "changeRate"),
                     "volume", Maps.longVal(detail.get("volume"), 0),
                     "value", Maps.longVal(detail.get("tradeValue"), 0),
+                    "tradeValue", Maps.longVal(detail.get("tradeValue"), 0),
                     "currency", detail.get("currency"),
                     "dataSource", detail.get("dataSource")
             ));

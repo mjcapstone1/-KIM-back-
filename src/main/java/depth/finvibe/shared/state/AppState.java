@@ -547,7 +547,7 @@ public final class AppState {
     }
 
     public List<Map<String, Object>> getStockCandles(String stockId, String timeframe, Integer points) {
-        Map<String, Object> stock = resolveStock(stockId);
+        Map<String, Object> stock = resolveStockForMarketData(stockId);
         return marketService.getCandles(stock, timeframe, points);
     }
 
@@ -1160,6 +1160,23 @@ public final class AppState {
         } catch (Exception ignored) {
             throw ApiException.notFound("STOCK_NOT_FOUND", "종목을 찾을 수 없습니다: " + identifier);
         }
+    }
+
+    private Map<String, Object> resolveStockForMarketData(String identifier) {
+        Map<String, Object> fallback = resolveStock(identifier);
+        try {
+            return stockQueryService.resolveStock(identifier);
+        } catch (Exception ignored) {
+            String code = Maps.str(fallback, "code");
+            if (!code.isBlank() && !code.equals(identifier)) {
+                try {
+                    return stockQueryService.resolveStock(code);
+                } catch (Exception ignoredAgain) {
+                    // Seed-only stocks keep using the compatibility data below.
+                }
+            }
+        }
+        return fallback;
     }
 
     public Map<String, Object> stockSnapshot(String identifier) {

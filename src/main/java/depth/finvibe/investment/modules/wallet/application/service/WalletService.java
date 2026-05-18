@@ -69,6 +69,11 @@ public class WalletService {
                 .orElseThrow(() -> ApiException.notFound("WALLET_NOT_FOUND", "지갑을 찾을 수 없습니다."));
     }
 
+    public WalletEntity requireWalletForUpdate(String userId) {
+        return walletRepository.lockByUserId(userId)
+                .orElseThrow(() -> ApiException.notFound("WALLET_NOT_FOUND", "지갑을 찾을 수 없습니다."));
+    }
+
     @Transactional
     public void writeLedger(
             WalletEntity wallet,

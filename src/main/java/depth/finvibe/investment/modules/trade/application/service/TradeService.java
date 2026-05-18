@@ -120,10 +120,12 @@ public class TradeService {
         }
         String autoCondition = Maps.str(payload, "autoCondition");
         BigDecimal triggerPrice = payload.get("triggerPrice") == null ? null : BigDecimal.valueOf(Maps.doubleVal(payload, "triggerPrice")).setScale(4, RoundingMode.HALF_UP);
-        String status = forcePending || "scheduled".equals(priceType) || autoCondition != null ? "pending" : "completed";
+        String status = forcePending || "limit".equals(priceType) || "scheduled".equals(priceType) || autoCondition != null
+                ? "pending"
+                : "completed";
         long totalKrw = stockQueryService.resolvePriceKrw(stock, orderPrice.multiply(quantity).doubleValue());
 
-        WalletEntity wallet = walletService.requireWallet(userId);
+        WalletEntity wallet = walletService.requireWalletForUpdate(userId);
         TradeOrderEntity order = new TradeOrderEntity();
         order.setOrderId(newOrderId());
         order.setUserId(userId);
@@ -147,6 +149,9 @@ public class TradeService {
             wallet.setReservedCashKrw(wallet.getReservedCashKrw() + totalKrw);
             wallet.setWithdrawableCashKrw(wallet.getWithdrawableCashKrw() - totalKrw);
             order.setReservedAmountKrw(totalKrw);
+        }
+        if ("pending".equals(status) && "sell".equals(side)) {
+            requireSellableAsset(userId, stock, quantity, "");
         }
 
         tradeOrderRepository.saveAndFlush(order);
@@ -185,12 +190,13 @@ public class TradeService {
 
     @Transactional
     public Map<String, Object> cancelOrder(String userId, String orderId) {
-        TradeOrderEntity order = requireOrder(userId, orderId);
+        TradeOrderEntity order = tradeOrderRepository.lockByOrderIdAndUserId(orderId, userId)
+                .orElseThrow(() -> ApiException.notFound("ORDER_NOT_FOUND", "주문을 찾을 수 없습니다: " + orderId));
         if (!"pending".equals(order.getOrderStatus())) {
             throw ApiException.conflict("ORDER_NOT_CANCELABLE", "대기 중인 주문만 취소할 수 있습니다.");
         }
 
-        WalletEntity wallet = walletService.requireWallet(userId);
+        WalletEntity wallet = walletService.requireWalletForUpdate(userId);
         if (order.getReservedAmountKrw() > 0) {
             wallet.setReservedCashKrw(Math.max(0, wallet.getReservedCashKrw() - order.getReservedAmountKrw()));
             wallet.setWithdrawableCashKrw(wallet.getWithdrawableCashKrw() + order.getReservedAmountKrw());
@@ -242,7 +248,7 @@ public class TradeService {
                 ? order.getRemainingQuantity()
                 : order.getQuantity();
         long totalKrw = stockQueryService.resolvePriceKrw(stock, executionPrice.multiply(quantity).doubleValue());
-        WalletEntity wallet = walletService.requireWallet(order.getUserId());
+        WalletEntity wallet = walletService.requireWalletForUpdate(order.getUserId());
 
         if ("buy".equals(order.getSide())) {
             long additionalCashNeeded = Math.max(0L, totalKrw - order.getReservedAmountKrw());
@@ -252,12 +258,11 @@ public class TradeService {
             }
             settleReservedBuy(wallet, order.getUserId(), stock, executionPrice, quantity, totalKrw, order);
         } else {
-            AssetEntity asset = assetRepository.findByUserIdAndStockId(order.getUserId(), stock.getStockId()).orElse(null);
-            if (asset == null || asset.getQuantity().compareTo(quantity) < 0) {
+            if (!hasSellableQuantityBeforeOrder(order, stock, quantity)) {
                 failPendingOrder(order, stock, wallet, "INSUFFICIENT_HOLDINGS", "예약 주문 체결 시 보유 수량이 부족합니다.");
                 return "failed";
             }
-            settleSell(wallet, order.getUserId(), stock, executionPrice, quantity, totalKrw, order.getOrderId());
+            settlePendingSell(wallet, order.getUserId(), stock, executionPrice, quantity, totalKrw, order);
         }
 
         order.setOrderPrice(executionPrice);
@@ -342,6 +347,60 @@ public class TradeService {
         return marketPrice >= orderPrice;
     }
 
+    private AssetEntity requireSellableAsset(String userId, StockEntity stock, BigDecimal quantity, String excludedOrderId) {
+        AssetEntity asset = assetRepository.lockByUserIdAndStockId(userId, stock.getStockId())
+                .orElseThrow(() -> ApiException.conflict("INSUFFICIENT_HOLDINGS", "보유 수량이 부족합니다."));
+        if (availableSellQuantity(asset, userId, stock.getStockId(), excludedOrderId).compareTo(quantity) < 0) {
+            throw ApiException.conflict("INSUFFICIENT_HOLDINGS", "보유 수량이 부족합니다.");
+        }
+        return asset;
+    }
+
+    private boolean hasSellableQuantityBeforeOrder(TradeOrderEntity order, StockEntity stock, BigDecimal quantity) {
+        AssetEntity asset = assetRepository.lockByUserIdAndStockId(order.getUserId(), stock.getStockId()).orElse(null);
+        if (asset == null) {
+            return false;
+        }
+        return availableSellQuantityBeforeOrder(asset, order, stock.getStockId()).compareTo(quantity) >= 0;
+    }
+
+    private AssetEntity requireSellableAssetBeforeOrder(String userId, StockEntity stock, BigDecimal quantity, TradeOrderEntity order) {
+        AssetEntity asset = assetRepository.lockByUserIdAndStockId(userId, stock.getStockId())
+                .orElseThrow(() -> ApiException.conflict("INSUFFICIENT_HOLDINGS", "보유 수량이 부족합니다."));
+        if (availableSellQuantityBeforeOrder(asset, order, stock.getStockId()).compareTo(quantity) < 0) {
+            throw ApiException.conflict("INSUFFICIENT_HOLDINGS", "보유 수량이 부족합니다.");
+        }
+        return asset;
+    }
+
+    private BigDecimal availableSellQuantity(AssetEntity asset, String userId, String stockId, String excludedOrderId) {
+        BigDecimal pendingSellQuantity = tradeOrderRepository.sumPendingSellRemainingQuantityExcludingOrder(
+                userId,
+                stockId,
+                excludedOrderId == null ? "" : excludedOrderId
+        );
+        if (pendingSellQuantity == null) {
+            pendingSellQuantity = BigDecimal.ZERO;
+        }
+        return asset.getQuantity().subtract(pendingSellQuantity);
+    }
+
+    private BigDecimal availableSellQuantityBeforeOrder(AssetEntity asset, TradeOrderEntity order, String stockId) {
+        LocalDateTime acceptedAt = order.getAcceptedAt() == null ? LocalDateTime.MIN : order.getAcceptedAt();
+        LocalDateTime createdAt = order.getCreatedAt() == null ? LocalDateTime.MIN : order.getCreatedAt();
+        BigDecimal pendingSellQuantity = tradeOrderRepository.sumEarlierPendingSellRemainingQuantity(
+                order.getUserId(),
+                stockId,
+                acceptedAt,
+                createdAt,
+                order.getOrderId()
+        );
+        if (pendingSellQuantity == null) {
+            pendingSellQuantity = BigDecimal.ZERO;
+        }
+        return asset.getQuantity().subtract(pendingSellQuantity);
+    }
+
     private void settleBuy(WalletEntity wallet, String userId, StockEntity stock, BigDecimal orderPrice, BigDecimal quantity, long totalKrw, String orderId) {
         if (wallet.getWithdrawableCashKrw() < totalKrw) {
             throw ApiException.conflict("INSUFFICIENT_BALANCE", "잔액이 부족합니다.");
@@ -350,7 +409,7 @@ public class TradeService {
         wallet.setCashBalanceKrw(wallet.getCashBalanceKrw() - totalKrw);
         wallet.setWithdrawableCashKrw(wallet.getWithdrawableCashKrw() - totalKrw);
 
-        AssetEntity asset = assetRepository.findByUserIdAndStockId(userId, stock.getStockId()).orElse(null);
+        AssetEntity asset = assetRepository.lockByUserIdAndStockId(userId, stock.getStockId()).orElse(null);
         if (asset == null) {
             asset = new AssetEntity();
             asset.setUserId(userId);
@@ -408,7 +467,7 @@ public class TradeService {
         }
         wallet.setCashBalanceKrw(wallet.getCashBalanceKrw() - totalKrw);
 
-        AssetEntity asset = assetRepository.findByUserIdAndStockId(userId, stock.getStockId()).orElse(null);
+        AssetEntity asset = assetRepository.lockByUserIdAndStockId(userId, stock.getStockId()).orElse(null);
         if (asset == null) {
             asset = new AssetEntity();
             asset.setUserId(userId);
@@ -449,14 +508,17 @@ public class TradeService {
         appendTradeFeed(userId, stock, order.getOrderId(), "buy", quantity);
     }
 
+    private void settlePendingSell(WalletEntity wallet, String userId, StockEntity stock, BigDecimal orderPrice, BigDecimal quantity, long totalKrw, TradeOrderEntity order) {
+        AssetEntity asset = requireSellableAssetBeforeOrder(userId, stock, quantity, order);
+        settleSellWithAsset(wallet, userId, stock, orderPrice, quantity, totalKrw, order.getOrderId(), asset);
+    }
+
     private void settleSell(WalletEntity wallet, String userId, StockEntity stock, BigDecimal orderPrice, BigDecimal quantity, long totalKrw, String orderId) {
-        AssetEntity asset = assetRepository.findByUserIdAndStockId(userId, stock.getStockId())
-                .orElseThrow(() -> ApiException.conflict("INSUFFICIENT_HOLDINGS", "보유 수량이 부족합니다."));
+        AssetEntity asset = requireSellableAsset(userId, stock, quantity, orderId);
+        settleSellWithAsset(wallet, userId, stock, orderPrice, quantity, totalKrw, orderId, asset);
+    }
 
-        if (asset.getQuantity().compareTo(quantity) < 0) {
-            throw ApiException.conflict("INSUFFICIENT_HOLDINGS", "보유 수량이 부족합니다.");
-        }
-
+    private void settleSellWithAsset(WalletEntity wallet, String userId, StockEntity stock, BigDecimal orderPrice, BigDecimal quantity, long totalKrw, String orderId, AssetEntity asset) {
         long avgPrice = asset.getAvgBuyPriceKrw();
         long costBasis = Math.round(avgPrice * quantity.doubleValue());
         long realizedPnl = totalKrw - costBasis;
