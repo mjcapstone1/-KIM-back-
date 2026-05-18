@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MarketController {
     private final AppState state;
+    private static final int MAX_RANKING_LIMIT = 5000;
     private final AuthService authService;
     private final UserService userService;
     private final PortfolioService portfolioService;
@@ -219,22 +220,26 @@ public class MarketController {
 
     @GetMapping("/market/stocks/top-by-value")
     public Object topByValue(@RequestParam(defaultValue = "10") int limit) {
-        return state.getHomeRankings("trading", "all", Math.max(1, Math.min(100, limit)));
+        return state.getHomeRankings("trading", "all", resolveRankingLimit(limit));
     }
 
     @GetMapping("/market/stocks/top-by-volume")
     public Object topByVolume(@RequestParam(defaultValue = "10") int limit) {
-        return state.getHomeRankings("volume", "all", Math.max(1, Math.min(100, limit)));
+        return state.getHomeRankings("volume", "all", resolveRankingLimit(limit));
     }
 
     @GetMapping("/market/stocks/top-rising")
     public Object topRising(@RequestParam(defaultValue = "10") int limit) {
-        return state.getHomeRankings("surge", "all", Math.max(1, Math.min(100, limit)));
+        return state.getHomeRankings("surge", "all", resolveRankingLimit(limit));
     }
 
     @GetMapping("/market/stocks/top-falling")
     public Object topFalling(@RequestParam(defaultValue = "10") int limit) {
-        return state.getHomeRankings("drop", "all", Math.max(1, Math.min(100, limit)));
+        return state.getHomeRankings("drop", "all", resolveRankingLimit(limit));
+    }
+
+    private int resolveRankingLimit(int limit) {
+        return Math.max(1, Math.min(MAX_RANKING_LIMIT, limit));
     }
 
     @GetMapping("/market/status")

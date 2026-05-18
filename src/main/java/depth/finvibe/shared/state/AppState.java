@@ -16,9 +16,11 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class AppState {
     private final Object lock = new Object();
@@ -210,23 +212,59 @@ public final class AppState {
             throw ApiException.badRequest("UNSUPPORTED_METRIC", "지원하지 않는 랭킹 타입입니다: " + metric);
         }
         List<Map<String, Object>> result = new ArrayList<>();
+        Set<String> seenStockIds = new HashSet<>();
+        Set<String> seenCodes = new HashSet<>();
         for (Map<String, Object> item : seed) {
             Map<String, Object> linkedStock = resolveStock(Maps.str(item, "stockId"));
             if (!"all".equals(market) && !market.equals(Maps.str(linkedStock, "type"))) {
                 continue;
             }
+            if (isSeenRankingStock(linkedStock, seenStockIds, seenCodes)) {
+                continue;
+            }
+            rememberRankingStock(linkedStock, seenStockIds, seenCodes);
             Map<String, Object> live = stockSnapshot(linkedStock);
+            double price = Maps.doubleVal(live, "price");
+            double priceKrw = Maps.doubleVal(live, "priceKrw");
+            double changeRate = Maps.doubleVal(live, "changeRate");
+            long volume = Maps.longVal(live.get("volume"), 0L);
+            long tradeValue = Maps.longVal(live.get("tradeValue"), 0L);
+            if (tradeValue <= 0 && priceKrw > 0 && volume > 0) {
+                tradeValue = Math.round(priceKrw * volume);
+            }
+            if (tradeValue <= 0) {
+                tradeValue = parseKoreanMoney(Maps.str(item, "volume"));
+            }
+
             Map<String, Object> row = new LinkedHashMap<>();
             row.putAll(item);
+            row.put("stockId", Maps.str(linkedStock, "id"));
             row.put("name", Maps.str(item, "canonicalName", Maps.str(linkedStock, "name")));
             row.put("displayName", Maps.str(item, "name"));
             row.put("ticker", Maps.str(linkedStock, "code"));
+            row.put("symbol", Maps.str(linkedStock, "code"));
+            row.put("code", Maps.str(linkedStock, "code"));
             row.put("type", Maps.str(linkedStock, "type"));
-            row.put("price", FinvibeUtils.formatHomePrice(Maps.doubleVal(live, "priceKrw")));
-            row.put("change", FinvibeUtils.formatChangePercent(Maps.doubleVal(live, "changeRate")));
-            row.put("isUp", Maps.doubleVal(live, "changeRate") >= 0);
+            row.put("price", FinvibeUtils.formatHomePrice(priceKrw));
+            row.put("close", price);
+            row.put("closingPrice", price);
+            row.put("prevDayChangePct", changeRate);
+            row.put("changeRate", changeRate);
+            row.put("change", FinvibeUtils.formatChangePercent(changeRate));
+            row.put("isUp", changeRate >= 0);
+            row.put("volume", volume);
+            row.put("value", tradeValue);
+            row.put("tradeValue", tradeValue);
             result.add(row);
         }
+        for (Map<String, Object> stock : listStocks(market, "", null)) {
+            if (isSeenRankingStock(stock, seenStockIds, seenCodes)) {
+                continue;
+            }
+            rememberRankingStock(stock, seenStockIds, seenCodes);
+            result.add(toHomeRankingRow(stock));
+        }
+        sortHomeRankings(metric, result);
         for (int i = 0; i < result.size(); i++) {
             result.get(i).put("rank", i + 1);
         }
@@ -234,6 +272,96 @@ public final class AppState {
             return new ArrayList<>(result.subList(0, limit));
         }
         return result;
+    }
+
+    private Map<String, Object> toHomeRankingRow(Map<String, Object> stock) {
+        Map<String, Object> saved = marketService.getSavedStockSnapshot(stock, exchangeRate);
+        Map<String, Object> source = saved == null ? stock : saved;
+        String type = Maps.str(source, "type", Maps.str(stock, "type"));
+        double price = Maps.doubleVal(source, "price");
+        double priceKrw = Maps.doubleVal(source, "priceKrw", "foreign".equals(type) ? price * exchangeRate : price);
+        double changeRate = Maps.doubleVal(source, "changeRate");
+        long volume = Maps.longVal(source.get("volume"), 0L);
+        long tradeValue = Maps.longVal(source.get("value"), Maps.longVal(source.get("tradeValue"), 0L));
+        if (tradeValue <= 0 && priceKrw > 0 && volume > 0) {
+            tradeValue = Math.round(priceKrw * volume);
+        }
+
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("stockId", Maps.str(stock, "id"));
+        row.put("id", Maps.str(stock, "id"));
+        row.put("name", Maps.str(stock, "name"));
+        row.put("displayName", Maps.str(stock, "name"));
+        row.put("ticker", Maps.str(stock, "code"));
+        row.put("symbol", Maps.str(stock, "code"));
+        row.put("code", Maps.str(stock, "code"));
+        row.put("type", type);
+        row.put("price", FinvibeUtils.formatHomePrice(priceKrw));
+        row.put("close", price);
+        row.put("closingPrice", price);
+        row.put("prevDayChangePct", changeRate);
+        row.put("changeRate", changeRate);
+        row.put("change", FinvibeUtils.formatChangePercent(changeRate));
+        row.put("isUp", changeRate >= 0);
+        row.put("volume", volume);
+        row.put("value", tradeValue);
+        row.put("tradeValue", tradeValue);
+        return row;
+    }
+
+    private boolean isSeenRankingStock(Map<String, Object> stock, Set<String> seenStockIds, Set<String> seenCodes) {
+        String stockId = Maps.str(stock, "id", Maps.str(stock, "stockId"));
+        String code = Maps.str(stock, "code", Maps.str(stock, "symbol"));
+        return (stockId != null && seenStockIds.contains(stockId)) || (code != null && seenCodes.contains(code));
+    }
+
+    private void rememberRankingStock(Map<String, Object> stock, Set<String> seenStockIds, Set<String> seenCodes) {
+        String stockId = Maps.str(stock, "id", Maps.str(stock, "stockId"));
+        String code = Maps.str(stock, "code", Maps.str(stock, "symbol"));
+        if (stockId != null && !stockId.isBlank()) {
+            seenStockIds.add(stockId);
+        }
+        if (code != null && !code.isBlank()) {
+            seenCodes.add(code);
+        }
+    }
+
+    private void sortHomeRankings(String metric, List<Map<String, Object>> rows) {
+        Comparator<Map<String, Object>> comparator = switch (metric) {
+            case "volume" -> Comparator.comparingLong((Map<String, Object> row) -> Maps.longVal(row.get("volume"), 0L)).reversed();
+            case "surge" -> Comparator.comparingDouble((Map<String, Object> row) -> Maps.doubleVal(row, "prevDayChangePct")).reversed();
+            case "drop" -> Comparator
+                    .comparingDouble((Map<String, Object> row) -> Math.max(0.0, -Maps.doubleVal(row, "prevDayChangePct")))
+                    .reversed()
+                    .thenComparingDouble(row -> Maps.doubleVal(row, "prevDayChangePct"));
+            case "trading", "personal", "popular" -> Comparator.comparingLong((Map<String, Object> row) -> Maps.longVal(row.get("value"), 0L)).reversed();
+            default -> Comparator.comparingInt(row -> Maps.intVal(row, "rank", 9999));
+        };
+        rows.sort(comparator.thenComparing(row -> Maps.str(row, "name")));
+    }
+
+    private long parseKoreanMoney(String text) {
+        if (text == null || text.isBlank()) {
+            return 0L;
+        }
+        String value = text.replace(",", "").trim();
+        try {
+            if (value.endsWith("천억")) {
+                return Math.round(Double.parseDouble(value.replace("천억", "").trim()) * 100_000_000_000L);
+            }
+            if (value.endsWith("조")) {
+                return Math.round(Double.parseDouble(value.replace("조", "").trim()) * 1_000_000_000_000L);
+            }
+            if (value.endsWith("억")) {
+                return Math.round(Double.parseDouble(value.replace("억", "").trim()) * 100_000_000L);
+            }
+            if (value.endsWith("만")) {
+                return Math.round(Double.parseDouble(value.replace("만", "").trim()) * 10_000L);
+            }
+            return Math.round(Double.parseDouble(value.replaceAll("[^0-9.+-]", "")));
+        } catch (Exception ignored) {
+            return 0L;
+        }
     }
 
     public List<Map<String, Object>> listThemes(String category) {

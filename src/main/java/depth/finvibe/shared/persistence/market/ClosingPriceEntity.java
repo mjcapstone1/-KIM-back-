@@ -43,6 +43,9 @@ public class ClosingPriceEntity {
     @Column(name = "volume", nullable = false)
     private long volume;
 
+    @Column(name = "trading_value_krw", nullable = false)
+    private long tradingValueKrw;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -67,6 +70,8 @@ public class ClosingPriceEntity {
 
     public long getVolume() { return volume; }
     public void setVolume(long volume) { this.volume = volume; }
+    public long getTradingValueKrw() { return tradingValueKrw; }
+    public void setTradingValueKrw(long tradingValueKrw) { this.tradingValueKrw = tradingValueKrw; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

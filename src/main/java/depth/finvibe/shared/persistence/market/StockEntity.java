@@ -46,6 +46,15 @@ public class StockEntity {
     @Column(name = "last_change_rate", nullable = false, precision = 10, scale = 4)
     private BigDecimal lastChangeRate;
 
+    @Column(name = "last_volume", nullable = false)
+    private long lastVolume;
+
+    @Column(name = "last_trade_value_krw", nullable = false)
+    private long lastTradeValueKrw;
+
+    @Column(name = "last_quote_at")
+    private LocalDateTime lastQuoteAt;
+
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
@@ -77,6 +86,12 @@ public class StockEntity {
     public void setLastPrice(BigDecimal lastPrice) { this.lastPrice = lastPrice; }
     public BigDecimal getLastChangeRate() { return lastChangeRate; }
     public void setLastChangeRate(BigDecimal lastChangeRate) { this.lastChangeRate = lastChangeRate; }
+    public long getLastVolume() { return lastVolume; }
+    public void setLastVolume(long lastVolume) { this.lastVolume = lastVolume; }
+    public long getLastTradeValueKrw() { return lastTradeValueKrw; }
+    public void setLastTradeValueKrw(long lastTradeValueKrw) { this.lastTradeValueKrw = lastTradeValueKrw; }
+    public LocalDateTime getLastQuoteAt() { return lastQuoteAt; }
+    public void setLastQuoteAt(LocalDateTime lastQuoteAt) { this.lastQuoteAt = lastQuoteAt; }
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
     public LocalDateTime getCreatedAt() { return createdAt; }

@@ -86,7 +86,7 @@ public final class KisClient {
         quote.put("bidPrice", Maps.intVal(output, "bidp1"));
         quote.put("totalAskVolume", Maps.intVal(output, "total_askp_rsqn"));
         quote.put("totalBidVolume", Maps.intVal(output, "total_bidp_rsqn"));
-        quote.put("tradeValue", Maps.intVal(output, "acml_tr_pbmn"));
+        quote.put("tradeValue", Maps.longVal(output.get("acml_tr_pbmn"), 0L));
         quote.put("previousClose", Maps.intVal(output, "stck_prdy_clpr"));
         quote.put("dataSource", "kis");
         quote.put("fetchedAt", TimeUtil.nowSeoulIso());
@@ -154,6 +154,8 @@ public final class KisClient {
             int high = Maps.intVal(row, "stck_hgpr");
             int low = Maps.intVal(row, "stck_lwpr");
             int close = Maps.intVal(row, "stck_clpr");
+            long volume = Maps.longVal(row.get("acml_vol"), 0);
+            long value = Maps.longVal(row.get("acml_tr_pbmn"), Math.round((double) close * volume));
             candle.put("time", label);
             candle.put("at", date.atStartOfDay(TimeUtil.SEOUL).toString());
             candle.put("timeframe", switch (timeframe) {
@@ -167,7 +169,9 @@ public final class KisClient {
             candle.put("high", high);
             candle.put("low", low);
             candle.put("close", close);
-            candle.put("volume", Maps.intVal(row, "acml_vol"));
+            candle.put("volume", volume);
+            candle.put("value", value);
+            candle.put("dataSource", "kis");
             candle.put("color", close >= open ? "#ef4444" : "#3b82f6");
             candles.add(candle);
         }
@@ -311,6 +315,7 @@ public final class KisClient {
             candle.put("low", Maps.intVal(row, "stck_lwpr"));
             candle.put("close", Maps.intVal(row, "stck_prpr"));
             candle.put("volume", Maps.intVal(row, "cntg_vol"));
+            candle.put("value", Math.round((double) Maps.intVal(row, "stck_prpr") * Maps.intVal(row, "cntg_vol")));
             raw.add(candle);
         }
         List<Map<String, Object>> aggregated = aggregateMinutes(raw, stepMinutes);
@@ -576,7 +581,10 @@ public final class KisClient {
                 row.put("high", Maps.intVal(candle, "high"));
                 row.put("low", Maps.intVal(candle, "low"));
                 row.put("close", close);
-                row.put("volume", Maps.intVal(candle, "volume"));
+                int volume = Maps.intVal(candle, "volume");
+                row.put("volume", volume);
+                row.put("value", Maps.longVal(candle.get("value"), Math.round((double) close * volume)));
+                row.put("dataSource", "kis");
                 row.put("color", close >= open ? "#ef4444" : "#3b82f6");
                 rows.add(row);
             }
@@ -605,10 +613,12 @@ public final class KisClient {
             int high = Integer.MIN_VALUE;
             int low = Integer.MAX_VALUE;
             int volume = 0;
+            long value = 0;
             for (Map<String, Object> item : bucket) {
                 high = Math.max(high, Maps.intVal(item, "high"));
                 low = Math.min(low, Maps.intVal(item, "low"));
                 volume += Maps.intVal(item, "volume");
+                value += Maps.longVal(item.get("value"), 0L);
             }
             Map<String, Object> row = new LinkedHashMap<>();
             ZonedDateTime dt = (ZonedDateTime) last.get("dt");
@@ -620,6 +630,8 @@ public final class KisClient {
             row.put("low", low);
             row.put("close", close);
             row.put("volume", volume);
+            row.put("value", value > 0 ? value : Math.round((double) close * volume));
+            row.put("dataSource", "kis");
             row.put("color", close >= open ? "#ef4444" : "#3b82f6");
             aggregated.add(row);
         }

@@ -98,7 +98,8 @@ public class ClosingPriceCaptureScheduler {
             row.setClosePrice(stock.getLastPrice());
             row.setPrevClosePrice(resolvePreviousClosePrice(stock, tradeDate));
             row.setChangeRate(stock.getLastChangeRate() == null ? BigDecimal.ZERO : stock.getLastChangeRate());
-            row.setVolume(0L);
+            row.setVolume(stock.getLastVolume());
+            row.setTradingValueKrw(stock.getLastTradeValueKrw());
 
             closingPriceRepository.save(row);
             saved++;

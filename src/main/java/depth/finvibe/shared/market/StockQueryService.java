@@ -39,7 +39,10 @@ public class StockQueryService {
         row.put("marketSegment", entity.getMarketSegment());
         row.put("price", entity.getLastPrice() == null ? 0.0 : entity.getLastPrice().doubleValue());
         row.put("changeRate", entity.getLastChangeRate() == null ? 0.0 : entity.getLastChangeRate().doubleValue());
-        row.put("volume", 0);
+        row.put("volume", entity.getLastVolume());
+        row.put("value", entity.getLastTradeValueKrw());
+        row.put("tradeValue", entity.getLastTradeValueKrw());
+        row.put("lastQuoteAt", entity.getLastQuoteAt() == null ? null : entity.getLastQuoteAt().toString());
         return row;
     }
 

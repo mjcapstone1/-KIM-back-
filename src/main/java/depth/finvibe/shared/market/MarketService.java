@@ -53,7 +53,7 @@ public final class MarketService {
         snapshot.put("low", Maps.intVal(quote, "low"));
         snapshot.put("askPrice", Maps.intVal(quote, "askPrice"));
         snapshot.put("bidPrice", Maps.intVal(quote, "bidPrice"));
-        snapshot.put("tradeValue", Maps.intVal(quote, "tradeValue"));
+        snapshot.put("tradeValue", Maps.longVal(quote.get("tradeValue"), 0L));
         snapshot.put("totalAskVolume", Maps.intVal(quote, "totalAskVolume"));
         snapshot.put("totalBidVolume", Maps.intVal(quote, "totalBidVolume"));
         snapshot.put("dataSource", quote.getOrDefault("dataSource", "kis"));
@@ -109,6 +109,16 @@ public final class MarketService {
         return metadataOnlySnapshot(stock, exchangeRate);
     }
 
+    public Map<String, Object> getSavedStockSnapshot(Map<String, Object> stock, int exchangeRate) {
+        Map<String, Object> saved = stockPriceStore.loadLastSavedQuote(Maps.str(stock, "id"));
+        if (saved == null || Maps.doubleVal(saved, "price") <= 0) {
+            return null;
+        }
+        saved.put("dataSource", "saved");
+        saved.putIfAbsent("fetchedAt", TimeUtil.nowSeoulIso());
+        return quoteToSnapshot(stock, saved, exchangeRate);
+    }
+
     public List<Map<String, Object>> listStockSnapshots(List<Map<String, Object>> stocks, int exchangeRate) {
         List<Map<String, Object>> rows = new ArrayList<>();
         try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
@@ -129,31 +139,84 @@ public final class MarketService {
 
     public List<Map<String, Object>> getCandles(Map<String, Object> stock, String timeframe, Integer points) {
         int resolvedPoints = points == null ? FinvibeUtils.getDefaultPoints(timeframe) : points;
+        String stockId = Maps.str(stock, "id");
+        if (isStoredCandleTimeframe(timeframe)) {
+            List<Map<String, Object>> stored = stockPriceStore.loadPriceCandles(stockId, timeframe, resolvedPoints);
+            if (stored.size() >= Math.min(resolvedPoints, 5)) {
+                return stored;
+            }
+        }
         if (shouldUseKis(stock)) {
             try {
-                if (List.of("day", "week", "month", "year").contains(timeframe)) {
-                    List<Map<String, Object>> candles = kisClient.fetchDomesticDailyChart(Maps.str(stock, "code"), timeframe, resolvedPoints);
-                    if (!candles.isEmpty()) {
-                        return candles;
-                    }
-                    List<Map<String, Object>> aggregated = fetchAggregatedKisCandles(stock, timeframe, resolvedPoints);
-                    if (!aggregated.isEmpty()) {
-                        return aggregated;
-                    }
-                } else if (timeframe.endsWith("min")) {
-                    List<Map<String, Object>> candles = kisClient.fetchDomesticMinuteChart(Maps.str(stock, "code"), timeframe, resolvedPoints);
-                    if (!candles.isEmpty()) {
-                        return candles;
-                    }
+                List<Map<String, Object>> candles = fetchKisCandles(stock, timeframe, resolvedPoints);
+                if (!candles.isEmpty()) {
+                    return candles;
                 }
                 log.warn("KIS candle response was empty. stockId={}, code={}, timeframe={}, points={}",
-                        Maps.str(stock, "id"), Maps.str(stock, "code"), timeframe, resolvedPoints);
+                        stockId, Maps.str(stock, "code"), timeframe, resolvedPoints);
             } catch (Exception e) {
                 log.warn("KIS candle fetch failed. stockId={}, code={}, timeframe={}, points={}",
-                        Maps.str(stock, "id"), Maps.str(stock, "code"), timeframe, resolvedPoints, e);
+                        stockId, Maps.str(stock, "code"), timeframe, resolvedPoints, e);
+            }
+        }
+        if (isStoredCandleTimeframe(timeframe)) {
+            List<Map<String, Object>> stored = stockPriceStore.loadPriceCandles(stockId, timeframe, resolvedPoints);
+            if (!stored.isEmpty()) {
+                return stored;
+            }
+        }
+        if (isStoredCandleTimeframe(timeframe)) {
+            int storedSourcePoints = switch (timeframe) {
+                case "week" -> Math.max(resolvedPoints * 7, resolvedPoints);
+                case "month" -> Math.max(resolvedPoints * 31, resolvedPoints);
+                case "year" -> Math.max(resolvedPoints * 252, resolvedPoints);
+                default -> resolvedPoints;
+            };
+            List<Map<String, Object>> storedCandles = stockPriceStore.loadClosingCandles(
+                    stockId,
+                    storedSourcePoints
+            );
+            if (!storedCandles.isEmpty()) {
+                if ("day".equals(timeframe)) {
+                    return storedCandles;
+                }
+                return aggregateCandles(storedCandles, timeframe, resolvedPoints, stockId);
             }
         }
         return List.of();
+    }
+
+    public List<Map<String, Object>> refreshStoredCandles(Map<String, Object> stock, String timeframe, int points) {
+        if (!shouldUseKis(stock) || !isStoredCandleTimeframe(timeframe)) {
+            return List.of();
+        }
+        try {
+            return fetchKisCandles(stock, timeframe, points);
+        } catch (Exception e) {
+            log.warn("KIS candle refresh failed. stockId={}, code={}, timeframe={}, points={}",
+                    Maps.str(stock, "id"), Maps.str(stock, "code"), timeframe, points, e);
+            return List.of();
+        }
+    }
+
+    private List<Map<String, Object>> fetchKisCandles(Map<String, Object> stock, String timeframe, int resolvedPoints) {
+        List<Map<String, Object>> candles = List.of();
+        if (isStoredCandleTimeframe(timeframe)) {
+            candles = kisClient.fetchDomesticDailyChart(Maps.str(stock, "code"), timeframe, resolvedPoints);
+            if (candles.isEmpty()) {
+                candles = fetchAggregatedKisCandles(stock, timeframe, resolvedPoints);
+            }
+            if (!candles.isEmpty()) {
+                stockPriceStore.saveCandles(Maps.str(stock, "id"), timeframe, candles, "kis");
+            }
+        } else if (timeframe.endsWith("min")) {
+            candles = kisClient.fetchDomesticMinuteChart(Maps.str(stock, "code"), timeframe, resolvedPoints);
+        }
+        return candles;
+    }
+
+    private boolean isStoredCandleTimeframe(String timeframe) {
+        return List.of("day", "week", "month", "year").contains(timeframe);
     }
 
     private List<Map<String, Object>> fetchAggregatedKisCandles(Map<String, Object> stock, String timeframe, int points) {

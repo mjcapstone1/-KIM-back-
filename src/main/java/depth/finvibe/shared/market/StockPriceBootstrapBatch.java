@@ -73,7 +73,7 @@ public class StockPriceBootstrapBatch {
         bootstrapActiveDomesticPrices("startup");
     }
 
-    @Scheduled(cron = "${finvibe.market.bootstrap-prices.cron:0 0/20 9-15 * * MON-FRI}", zone = "Asia/Seoul")
+    @Scheduled(cron = "${finvibe.market.bootstrap-prices.cron:0 0/10 * * * *}", zone = "Asia/Seoul")
     public void bootstrapOnSchedule() {
         if (!enabled || !scheduleEnabled) {
             return;
@@ -126,13 +126,15 @@ public class StockPriceBootstrapBatch {
                     String source = String.valueOf(snapshot.getOrDefault("dataSource", "unknown"));
                     double price = toDouble(snapshot.get("price"));
                     double changeRate = toDouble(snapshot.get("changeRate"));
+                    long volume = toLong(snapshot.get("volume"));
+                    long tradeValue = toLong(snapshot.get("tradeValue"));
 
                     if (!"kis".equals(source) || price <= 0) {
                         skipped++;
                         continue;
                     }
 
-                    updateLastPrice(stock.getStockId(), price, changeRate);
+                    updateLastQuote(stock.getStockId(), price, changeRate, volume, tradeValue);
                     updated++;
                 } catch (Exception e) {
                     failed++;
@@ -155,11 +157,14 @@ public class StockPriceBootstrapBatch {
     }
 
     @Transactional
-    protected void updateLastPrice(String stockId, double price, double changeRate) {
+    protected void updateLastQuote(String stockId, double price, double changeRate, long volume, long tradeValue) {
         StockEntity entity = stockRepository.findById(stockId)
                 .orElseThrow(() -> new IllegalArgumentException("종목이 없습니다: " + stockId));
         entity.setLastPrice(BigDecimal.valueOf(price));
         entity.setLastChangeRate(BigDecimal.valueOf(changeRate));
+        entity.setLastVolume(Math.max(0L, volume));
+        entity.setLastTradeValueKrw(Math.max(0L, tradeValue));
+        entity.setLastQuoteAt(LocalDateTime.now());
         stockRepository.save(entity);
     }
 
@@ -174,6 +179,9 @@ public class StockPriceBootstrapBatch {
             return false;
         }
         if (stock.getLastPrice() == null || stock.getLastPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            return true;
+        }
+        if (stock.getLastVolume() <= 0 || stock.getLastTradeValueKrw() <= 0) {
             return true;
         }
         if (!refreshZeroOnly) {
@@ -196,11 +204,11 @@ public class StockPriceBootstrapBatch {
         if (staleAfterMinutes <= 0) {
             return false;
         }
-        if (stock.getUpdatedAt() == null) {
+        if (stock.getLastQuoteAt() == null) {
             return true;
         }
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(Math.max(1, staleAfterMinutes));
-        return stock.getUpdatedAt().isBefore(cutoff);
+        return stock.getLastQuoteAt().isBefore(cutoff);
     }
 
     private double toDouble(Object value) {
@@ -214,6 +222,20 @@ public class StockPriceBootstrapBatch {
             return Double.parseDouble(String.valueOf(value));
         } catch (Exception ignored) {
             return 0.0;
+        }
+    }
+
+    private long toLong(Object value) {
+        if (value == null) {
+            return 0L;
+        }
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        try {
+            return Math.round(Double.parseDouble(String.valueOf(value)));
+        } catch (Exception ignored) {
+            return 0L;
         }
     }
 }
